@@ -29,3 +29,6 @@ after adding the extension
 inserting data manually:
 ![img.png](img.png)
 
+7. run python createtables.py to create the tables
+
+8. run python populatepatients.py to populate the patients table
