@@ -6,7 +6,7 @@ import psycopg2
 
 previous_values = {}
 
-def write_to_timescaledb(vitals):
+def write_to_timescaledb(patient_id, vitals):
     try:
         connection = psycopg2.connect(
             user="postgres",
@@ -22,7 +22,7 @@ def write_to_timescaledb(vitals):
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         record_to_insert = (
-            1,  # Replace with the actual patient ID or loop through multiple patients
+            patient_id,
             vitals['fields']['temperature'],
             vitals['fields']['pulse'],
             vitals['fields']['respiration_rate'],
@@ -31,7 +31,6 @@ def write_to_timescaledb(vitals):
             vitals['fields']['ecg_string'],
             vitals['time']
         )
-
         cursor.execute(insert_query, record_to_insert)
         connection.commit()
         count = cursor.rowcount
@@ -43,11 +42,37 @@ def write_to_timescaledb(vitals):
             cursor.close()
             connection.close()
 
+def get_patients():
+    try:
+        connection = psycopg2.connect(
+            user="postgres",
+            password="metallica",
+            host="127.0.0.1",
+            port="5432",
+            database="postgres"
+        )
+        cursor = connection.cursor()
+
+        query = "SELECT id, age FROM patients"
+        cursor.execute(query)
+        patients = cursor.fetchall()
+
+        return patients
+    except (Exception, psycopg2.Error) as error:
+        print("Failed to fetch patients", error)
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
 def simulate_vitals():
     while True:
-        vitals = generate_vitals(20)
-        write_to_timescaledb(vitals)
-        time.sleep(10)
+        patients = get_patients()
+        for patient in patients:
+            patient_id, age = patient
+            vitals = generate_vitals(age)
+            write_to_timescaledb(patient_id, vitals)
+        time.sleep(60)
 
 def initialize_values(age):
     # Initialize values
@@ -198,6 +223,11 @@ def generate_vitals(age):
         previous_values["ecg"] = update_ecg(previous_values["pulse"])
 
     ecg_string = ','.join(map(str, previous_values["ecg"]))
+
+    # Truncate ecg string
+    if len(ecg_string) > 254:
+        ecg_string = ecg_string[:254]
+
     return {
         "measurement": "patient1",
         "fields": {
@@ -212,5 +242,4 @@ def generate_vitals(age):
     }
 
 if __name__ == "__main__":
-    age = 20
     simulate_vitals()

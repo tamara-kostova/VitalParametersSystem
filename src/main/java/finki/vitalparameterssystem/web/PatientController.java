@@ -33,14 +33,11 @@ public class PatientController {
         Optional<Patient> patient = patientService.getPatientById(id);
         if (patient.isPresent()) {
             model.addAttribute("patient", patient.get());
-
-            // Fetch vitals records for the patient
             List<VitalsRecord> vitalsRecords = vitalsRecordService.getVitalsByPatientId(id);
             model.addAttribute("vitalsRecords", vitalsRecords);
 
             return "details";
         } else {
-            // handle patient not found
             return "redirect:/patients";
         }
     }
