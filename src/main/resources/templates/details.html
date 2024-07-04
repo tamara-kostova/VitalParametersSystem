@@ -6,8 +6,37 @@
 <body>
 <h1>Patient Details</h1>
 <p><strong>Name:</strong> <span th:text="${patient.name}"></span></p>
-<p><strong>Gender:</strong> <span th:text="${patient.gender}"></span></p>
+<p><strong>Surname:</strong> <span th:text="${patient.surname}"></span></p>
 <p><strong>Date of Birth:</strong> <span th:text="${patient.dateOfBirth}"></span></p>
+<p><strong>Gender:</strong> <span th:text="${patient.gender}"></span></p>
+<p><strong>Age:</strong> <span th:text="${patient.age}"></span></p>
+
+<h2>Vitals Records</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Temperature</th>
+        <th>Pulse</th>
+        <th>Respiration Rate</th>
+        <th>Systolic</th>
+        <th>Diastolic</th>
+        <th>ECG String</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vital : ${vitalsRecords}">
+        <td th:text="${vital.time}"></td>
+        <td th:text="${vital.temperature}"></td>
+        <td th:text="${vital.pulse}"></td>
+        <td th:text="${vital.respirationRate}"></td>
+        <td th:text="${vital.systolic}"></td>
+        <td th:text="${vital.diastolic}"></td>
+        <td th:text="${vital.ecgString}"></td>
+    </tr>
+    </tbody>
+</table>
+
 <a href="/patients">Back to Patients</a>
 </body>
 </html>

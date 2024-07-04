@@ -21,6 +21,10 @@ public class VitalsRecordService {
         return vitalsRepository.findAll();
     }
 
+    public List<VitalsRecord> getVitalsByPatientId(Long patientId) {
+        return vitalsRepository.findByPatientId(patientId);
+    }
+
     public VitalsRecord addVitals(Long patientId, VitalsRecord vitals) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
