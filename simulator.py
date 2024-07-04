@@ -16,11 +16,22 @@ def write_to_timescaledb(vitals):
             database="postgres"
         )
         cursor = connection.cursor()
+
         insert_query = """ INSERT INTO vitals (measurement, temperature, pulse, respiration_rate, systolic, diastolic, ecg_string, time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
         record_to_insert = (vitals['measurement'], vitals['fields']['temperature'], vitals['fields']['pulse'], vitals['fields']['respiration_rate'], vitals['fields']['systolic'], vitals['fields']['diastolic'], vitals['fields']['ecg_string'], vitals['time'])
+
+        ##test manual insert
+        # insert_query = """
+        # INSERT INTO vitals (id, measurement, temperature, pulse, respiration_rate, systolic, diastolic, ecg_string, time)
+        # VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        # """
+        # record_to_insert = (123, 'measurement', 37, 65, 20, 80, 120, '0 0 1 1 0', datetime.utcnow())
+
         cursor.execute(insert_query, record_to_insert)
         connection.commit()
         count = cursor.rowcount
+        print('Record ',record_to_insert)
+        print('Query: ',insert_query)
         print(count, "Record inserted successfully into vitals table")
     except (Exception, psycopg2.Error) as error:
         print("Failed to insert record into vitals table", error)

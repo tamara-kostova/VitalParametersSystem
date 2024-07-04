@@ -26,3 +26,6 @@ after adding the extension
    SELECT * FROM vitals;
 
 
+inserting data manually:
+![img.png](img.png)
+
