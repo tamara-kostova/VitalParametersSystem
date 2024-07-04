@@ -32,3 +32,6 @@ inserting data manually:
 7. run python createtables.py to create the tables
 
 8. run python populatepatients.py to populate the patients table
+
+## details view:
+![img_1.png](img_1.png)
