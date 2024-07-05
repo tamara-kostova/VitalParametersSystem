@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Details</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             padding-top: 20px;
@@ -38,6 +38,9 @@
         }
         .btn-back:hover {
             background-color: #0056b3;
+        }
+        .ecg-chart-container {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -72,18 +75,24 @@
                 <th>Respiration Rate</th>
                 <th>Systolic</th>
                 <th>Diastolic</th>
-                <th>ECG String</th>
+                <th>ECG</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="vital : ${vitalsRecords}">
+            <tr th:each="vital, iterStat : ${vitalsRecords}">
                 <td th:text="${vital.time}"></td>
                 <td th:text="${vital.temperature}"></td>
                 <td th:text="${vital.pulse}"></td>
                 <td th:text="${vital.respirationRate}"></td>
                 <td th:text="${vital.systolic}"></td>
                 <td th:text="${vital.diastolic}"></td>
-                <td th:text="${vital.ecgString}"></td>
+                <td>
+                    <div class="ecg-chart-container">
+                        <canvas th:id="'ecg-chart-' + ${iterStat.index}"></canvas>
+                    </div>
+                    <!--hidden input field for loading the ECG data from the backend-->
+                    <input type="hidden" th:id="'ecg-data-' + ${iterStat.index}" th:value="${vital.ecgString}">
+                </td>
             </tr>
             </tbody>
         </table>
@@ -92,5 +101,44 @@
     <!-- Back Button -->
     <a href="/patients" class="btn btn-back mt-4">Back to Patients</a>
 </div>
+<script>
+    <!--script for plotting the ecg signals-->
+    document.addEventListener("DOMContentLoaded", function () {
+        const ecgContainers = document.querySelectorAll(".ecg-chart-container");
+
+        ecgContainers.forEach((container, index) => {
+            const ecgDataInput = document.getElementById(`ecg-data-${index}`);
+            const ecgData = ecgDataInput.value.split(',').map(Number);
+
+            const ctx = document.getElementById(`ecg-chart-${index}`).getContext('2d');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ecgData.map((_, i) => i),
+                    datasets: [{
+                        label: 'ECG',
+                        data: ecgData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

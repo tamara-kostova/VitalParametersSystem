@@ -17,8 +17,8 @@ with conn.cursor() as cursor:
     # Sample patient data
     patients = [
         ('Tamara', 'Kostova', '2002-12-14', 21, 'Female', '1234567890123'),
-        ('Aleksandra', 'Nastoska', '2003-01-10', 21, 'Female', '9876543210987'),
-        ('Ilija', 'Bozoski', '2002-08-20', 21, 'Male', '5678901234567')
+        ('Aleksandra', 'Nastoska', '2003-01-17', 21, 'Female', '9876543210987'),
+        ('Ilija', 'Bozoski', '2002-08-04', 21, 'Male', '5678901234567')
     ]
 
     # Insert data into the patients table

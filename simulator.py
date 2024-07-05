@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import neurokit2 as nk
 import psycopg2
+import matplotlib.pyplot as plt
 
 previous_values = {}
 
@@ -151,7 +152,7 @@ def initialize_blood_pressure():
 
 def initialize_ecg():
     # ECG value generator which takes into the current heart rate
-    ecg = nk.ecg_simulate(duration=8, sampling_rate=200, heart_rate=80)
+    ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=80)
     return ecg
 
 
@@ -208,7 +209,11 @@ def update_blood_pressure(previous_bp):
 
 
 def update_ecg(pulse):
-    ecg = nk.ecg_simulate(duration=8, sampling_rate=200, heart_rate=pulse)
+    ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=pulse)
+    # a way to plot the ecg signal
+    nk.signal_plot(ecg, labels=["ecg"])
+    plt.savefig(f'ecg_plot_{datetime.utcnow().strftime("%Y%m%d%H%M%S")}.png')
+    plt.close()
     return ecg
 
 def generate_vitals(age):
@@ -223,10 +228,6 @@ def generate_vitals(age):
         previous_values["ecg"] = update_ecg(previous_values["pulse"])
 
     ecg_string = ','.join(map(str, previous_values["ecg"]))
-
-    # Truncate ecg string
-    if len(ecg_string) > 254:
-        ecg_string = ecg_string[:254]
 
     return {
         "measurement": "patient1",

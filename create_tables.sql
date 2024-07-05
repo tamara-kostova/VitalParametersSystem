@@ -1,13 +1,13 @@
 -- Create the Patient table
 CREATE TABLE IF NOT EXISTS patients (
-                                        id SERIAL PRIMARY KEY,
-                                        name TEXT NOT NULL,
-                                        surname TEXT NOT NULL,
-                                        date_of_birth DATE NOT NULL,
-                                        age INTEGER NOT NULL,
-                                        gender TEXT,
-                                        embg VARCHAR(20) UNIQUE NOT NULL
-    );
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    date_of_birth DATE NOT NULL,
+    age INTEGER NOT NULL,
+    gender TEXT,
+    embg VARCHAR(20) UNIQUE NOT NULL
+);
 
 -- Create the Vitals table
 CREATE TABLE IF NOT EXISTS vitals (
