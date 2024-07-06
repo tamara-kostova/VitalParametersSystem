@@ -30,7 +30,7 @@ public class PatientController {
     @GetMapping("/patients")
     public String listPatients(Model model) {
         model.addAttribute("patients", patientService.getAllPatients());
-        return "patientsStaro";
+        return "patients";
     }
     @GetMapping("/patients")
     public String searchPatientById(@RequestParam(value = "id",required = false) Long id, Model model) {
