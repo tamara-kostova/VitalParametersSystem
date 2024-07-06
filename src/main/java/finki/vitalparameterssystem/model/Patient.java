@@ -19,5 +19,6 @@ public class Patient {
     private LocalDate dateOfBirth;
     private Integer age;
     private String embg;
+    private Boolean active;
 }
 

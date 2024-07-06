@@ -1,0 +1,46 @@
+
+body{
+    background-image: linear-gradient(to right, #0f768a, #18779b, #399edc, rgb(128, 177, 234));
+}
+.Pacient{
+    border: blanchedalmond 3px solid;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.PacientId{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:50px ;
+    height: 50px;
+    border-radius: 100%;
+    background: blanchedalmond;
+}
+.PacientHealth{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: blanchedalmond;
+    width: 9rem;
+    height: 3rem;
+}
+.PacientHealth>h1{
+    font-size: x-large;
+}
+#patientSearch{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+#Info{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: lightyellow;
+}
+#Info1{
+    padding-left: 2.9rem;
+}
