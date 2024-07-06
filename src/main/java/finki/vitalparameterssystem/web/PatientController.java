@@ -27,13 +27,16 @@ public class PatientController {
         return "home";
     }
 
-    @GetMapping("/patients")
-    public String listPatients(Model model) {
-        model.addAttribute("patients", patientService.getAllPatients());
-        return "patients";
-    }
+//    @GetMapping("/patients")
+//    public String listPatients(Model model) {
+//        model.addAttribute("patients", patientService.getAllPatients());
+//        return "patientsStaro";
+//    }
     @GetMapping("/patients")
     public String searchPatientById(@RequestParam(value = "id",required = false) Long id, Model model) {
+        if (id == null) {
+            return "patients";
+        }
         Optional<Patient> patient = patientService.getPatientById(id);
         if (patient.isPresent()) {
             model.addAttribute("patient", patient.get());
@@ -42,7 +45,7 @@ public class PatientController {
 
             return "details";
         } else {
-            return "redirect:/patients";
+            return "patients";
         }
     }
 

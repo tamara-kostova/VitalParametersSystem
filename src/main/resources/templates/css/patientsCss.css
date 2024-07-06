@@ -2,13 +2,13 @@
 body{
     background-image: linear-gradient(to right, #0f768a, #18779b, #399edc, rgb(128, 177, 234));
 }
-.Pacient{
+.Patient{
     border: blanchedalmond 3px solid;
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
-.PacientId{
+.PatientId{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,7 +17,7 @@ body{
     border-radius: 100%;
     background: blanchedalmond;
 }
-.PacientHealth{
+.PatientHealth{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,7 +25,7 @@ body{
     width: 9rem;
     height: 3rem;
 }
-.PacientHealth>h1{
+.PatientHealth>h1{
     font-size: x-large;
 }
 #patientSearch{
