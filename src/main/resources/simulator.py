@@ -11,7 +11,7 @@ def write_to_timescaledb(patient_id, vitals):
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="aleksandra",
+            password="metallica",
             host="localhost",
             port="5432",
             database="postgres"
@@ -48,7 +48,7 @@ def get_patients():
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="aleksandra",
+            password="metallica",
             host="127.0.0.1",
             port="5432",
             database="postgres"
@@ -74,7 +74,7 @@ def simulate_vitals():
             patient_id, age = patient
             vitals = generate_vitals(age)
             write_to_timescaledb(patient_id, vitals)
-        time.sleep(60)
+        time.sleep(10)
 
 def initialize_values(age):
     # Initialize values
@@ -238,7 +238,7 @@ def update_ecg(pulse):
     # Save ECG plot
     plot_filename = f'ecg_plot_{datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")}.png'
     nk.signal_plot(ecg, labels=["ecg"])
-    plt.savefig(plot_filename)
+    # plt.savefig(plot_filename)
     plt.close()
     return ecg
 
