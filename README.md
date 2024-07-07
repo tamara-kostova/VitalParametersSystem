@@ -35,3 +35,10 @@ inserting data manually:
 
 ## details view:
 ![img_1.png](img_1.png)
+
+
+## For visualizations
+1. pip install Flask
+2. pip install matplotlib
+3. pip install flask-cors 
+4. python analyzer.py

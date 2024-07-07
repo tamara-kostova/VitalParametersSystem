@@ -21,4 +21,5 @@ public class VitalsRecord {
     private Integer diastolic;
     private String ecgString;
     private LocalDateTime time;
+    private Double saturation;
 }
