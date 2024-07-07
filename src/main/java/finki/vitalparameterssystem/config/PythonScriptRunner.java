@@ -1,6 +1,7 @@
 package finki.vitalparameterssystem.config;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -13,22 +14,30 @@ import java.nio.file.StandardCopyOption;
 @Component
 public class PythonScriptRunner {
 
-    private Process process;
+    private Process simulatorProcess;
+    private Process analyzerProcess;
 
     @PostConstruct
-    public void runPythonScript() {
+    public void runPythonScripts() {
+        // Run simulator script
+        runScript("simulator.py");
+
+        // Run analyzer script
+        runScript("analyzer.py");
+    }
+
+    private void runScript(String scriptName) {
         Thread scriptThread = new Thread(() -> {
             try {
-                // Path to your Python script relative to the resources folder
-                ClassPathResource resource = new ClassPathResource("simulator.py");
-                Path tempScript = Files.createTempFile("simulator", ".py");
+                // Path to the Python script relative to the resources folder
+                ClassPathResource resource = new ClassPathResource(scriptName);
+                Path tempScript = Files.createTempFile(scriptName, ".py");
                 Files.copy(resource.getInputStream(), tempScript, StandardCopyOption.REPLACE_EXISTING);
 
                 // Execute the Python script
                 ProcessBuilder processBuilder = new ProcessBuilder("python", tempScript.toString());
-                process = processBuilder.start();
+                Process process = processBuilder.start();
 
-                // Capture the output of the script
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -37,10 +46,17 @@ public class PythonScriptRunner {
 
                 // Wait for the process to complete
                 int exitCode = process.waitFor();
-                System.out.println("Exited with code: " + exitCode);
+                System.out.println(scriptName + " exited with code: " + exitCode);
 
                 // Delete the temporary script file
                 Files.delete(tempScript);
+
+                // Assign process to the appropriate field
+                if ("simulator.py".equals(scriptName)) {
+                    simulatorProcess = process;
+                } else if ("analyzer.py".equals(scriptName)) {
+                    analyzerProcess = process;
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -48,17 +64,25 @@ public class PythonScriptRunner {
         });
 
         scriptThread.start();
+    }
 
-        // Register a shutdown hook to terminate the Python script when the JVM shuts down
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (process != null) {
-                process.destroy();
-                try {
-                    process.waitFor();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    @PreDestroy
+    public void cleanUp() {
+        if (simulatorProcess != null) {
+            simulatorProcess.destroy();
+            try {
+                simulatorProcess.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }));
+        }
+        if (analyzerProcess != null) {
+            analyzerProcess.destroy();
+            try {
+                analyzerProcess.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
