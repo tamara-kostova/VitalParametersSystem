@@ -1,6 +1,6 @@
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import neurokit2 as nk
 import psycopg2
 import matplotlib.pyplot as plt
@@ -11,16 +11,16 @@ def write_to_timescaledb(patient_id, vitals):
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="metallica",
-            host="127.0.0.1",
+            password="aleksandra",
+            host="localhost",
             port="5432",
             database="postgres"
         )
         cursor = connection.cursor()
 
         insert_query = """
-        INSERT INTO vitals (patient_id, temperature, pulse, respiration_rate, systolic, diastolic, ecg_string, time)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO vitals (patient_id, temperature, pulse, respiration_rate, systolic, diastolic, ecg_string, time, saturation)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         record_to_insert = (
             patient_id,
@@ -29,8 +29,9 @@ def write_to_timescaledb(patient_id, vitals):
             vitals['fields']['respiration_rate'],
             vitals['fields']['systolic'],
             vitals['fields']['diastolic'],
-            vitals['fields']['ecg_string'],
-            vitals['time']
+            vitals['fields']['ecg_string'][:200],
+            vitals['time'].strftime("%Y-%m-%d %H:%M:%S"),
+            vitals['fields']['saturation']
         )
         cursor.execute(insert_query, record_to_insert)
         connection.commit()
@@ -47,7 +48,7 @@ def get_patients():
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="metallica",
+            password="aleksandra",
             host="127.0.0.1",
             port="5432",
             database="postgres"
@@ -83,7 +84,8 @@ def initialize_values(age):
         "pulse": initialize_pulse(age),
         "respiration_rate": initialize_respiration_rate(age),
         "blood_pressure": initialize_blood_pressure(),
-        "ecg": initialize_ecg()
+        "ecg": initialize_ecg(),
+        "saturation": initialize_saturation(age)
     }
 
 
@@ -155,6 +157,29 @@ def initialize_ecg():
     ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=80)
     return ecg
 
+def initialize_saturation(age):
+    # Normal resting saturation levels for healthy individuals
+    if random.random() < 0.8:
+        if age >= 18:
+            saturation = random.randint(95, 100)
+        elif 6 <= age < 17:
+            saturation = random.randint(95, 100)
+        elif 2 <= age < 6:
+            saturation = random.randint(95, 100)
+        else:
+            saturation = random.randint(95, 100)
+    else:
+        if age >= 18:
+            saturation = random.randint(80, 100)
+        elif 6 <= age < 17:
+            saturation = random.randint(80, 100)
+        elif 2 <= age < 6:
+            saturation = random.randint(80, 100)
+        else:
+            saturation = random.randint(80, 100)
+    return saturation
+
+
 
 def get_age_based_value(age, adult_min, adult_max, non_adult_min, non_adult_max):
     if age >= 18:
@@ -210,11 +235,17 @@ def update_blood_pressure(previous_bp):
 
 def update_ecg(pulse):
     ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=pulse)
-    # a way to plot the ecg signal
+    # Save ECG plot
+    plot_filename = f'ecg_plot_{datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")}.png'
     nk.signal_plot(ecg, labels=["ecg"])
-    plt.savefig(f'ecg_plot_{datetime.utcnow().strftime("%Y%m%d%H%M%S")}.png')
+    plt.savefig(plot_filename)
     plt.close()
     return ecg
+
+def update_saturation(previous_saturation):
+    delta_saturation = random.randint(-2, 2)
+    new_saturation = max(90, min(previous_saturation + delta_saturation, 100))
+    return new_saturation
 
 def generate_vitals(age):
     global previous_values
@@ -225,7 +256,9 @@ def generate_vitals(age):
         previous_values["pulse"] = update_pulse(previous_values["pulse"], age)
         previous_values["respiration_rate"] = update_respiration_rate(previous_values["respiration_rate"], age)
         previous_values["blood_pressure"] = update_blood_pressure(previous_values["blood_pressure"])
+        previous_values["saturation"] = update_saturation(previous_values["saturation"])
         previous_values["ecg"] = update_ecg(previous_values["pulse"])
+
 
     ecg_string = ','.join(map(str, previous_values["ecg"]))
 
@@ -237,9 +270,10 @@ def generate_vitals(age):
             'respiration_rate': previous_values["respiration_rate"],
             'systolic': previous_values["blood_pressure"][0],
             'diastolic': previous_values["blood_pressure"][1],
+            'saturation': previous_values["saturation"],
             'ecg_string': ecg_string
         },
-        'time': datetime.utcnow()
+        'time': datetime.now(timezone.utc)
     }
 
 if __name__ == "__main__":

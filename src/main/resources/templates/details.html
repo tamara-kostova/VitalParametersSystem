@@ -51,8 +51,8 @@
 </div>
 
 <div class="container mt-4">
-    <!-- Patient Information -->
-    <div class="card mb-4">
+    <div class="row">
+    <div class="card mb-4 col-6">
         <div class="card-body">
             <h4 class="card-title mb-3">Patient Information</h4>
             <p><strong>Name:</strong> <span th:text="${patient.name}"></span></p>
@@ -62,9 +62,24 @@
             <p><strong>Age:</strong> <span th:text="${patient.age}"></span></p>
         </div>
     </div>
-
+    <div class="col-6">
+        <h1>Live Monitoring</h1>
+        <!--ECG grafikot ovde -->
+    </div>
+    </div>
+    <div>
+        <a th:href="@{'patients/edit-patient/{id}' (id=${patient.getId()})}">Edit</a>
+    </div>
+    <div>
+        <form th:action="@{'/patients/delete-patient/' + ${patient.getId()}}" th:method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" onclick="return confirm('Are you sure you want to delete?')">Delete</button>
+        </form>
+    </div>
+    </div>
+<a href="/patients" class="btn btn-back mt-4">Back to Patients</a>
     <!-- Vitals Records -->
-    <h2 class="mb-4">Vitals Records</h2>
+    <!--<h2 class="mb-4">Vitals Records</h2>
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead>
@@ -90,17 +105,96 @@
                     <div class="ecg-chart-container">
                         <canvas th:id="'ecg-chart-' + ${iterStat.index}"></canvas>
                     </div>
-                    <!--hidden input field for loading the ECG data from the backend-->
                     <input type="hidden" th:id="'ecg-data-' + ${iterStat.index}" th:value="${vital.ecgString}">
                 </td>
             </tr>
             </tbody>
         </table>
+    </div>-->
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <h1>Vital Parameters</h1>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">BP</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p th:text="${vitalsRecords.getSystolic()}"></p><p th:text="${vitalsRecords.getDiastolic()}"></p></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">HR</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p th:text="${vitalsRecords.getPulse()}"></p></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">SpO2</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p th:text="${vitalsRecords.getSaturation()}"></p></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">RR</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p th:text="${vitalsRecords.getRespirationRate()}"></p></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">Tmp</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p th:text="${vitalsRecords.getTemperature()}"></p></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">HRV</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><p>Ne znam so e HRV</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <h1>Health status</h1>
+            <div class="container">
+                <div id="sys-chart">
+                    <img id="systolic-chart" src="" alt="BP Chart">
+                </div>
+            </div>
+            <div class="container">
+            <div id="chart">
+                <img id="temperature-chart" src="" alt="Temperature Chart">
+            </div>
+            </div>
+            <div class="container">
+            <div id="sat-chart">
+                <img id="saturation-chart" src="" alt="Saturation Chart">
+            </div>
+            </div>
+            <div class="container">
+                <div id="respiration-chart">
+                    <img id="respiration-rate-chart" src="" alt="Respiration Rate Chart">
+                </div>
+            </div>
+            <div class="container">
+                <div id="pulse-chart">
+                    <img id="pulse-rate-chart" src="" alt="Pulse Rate Chart">
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Back Button -->
-    <a href="/patients" class="btn btn-back mt-4">Back to Patients</a>
 </div>
+
 <script>
     <!--script for plotting the ecg signals-->
     document.addEventListener("DOMContentLoaded", function () {
@@ -139,6 +233,97 @@
             });
         });
     });
+    async function fetchTemperatureData(patientId) {
+        const response = await fetch(`/getTemperatureByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchSaturationData(patientId) {
+        const response = await fetch(`/getSaturationByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchRespirationRateData(patientId) {
+        const response = await fetch(`/getRespirationRateByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchPulseData(patientId) {
+        const response = await fetch(`/getPulseByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchSystolicData(patientId) {
+        const response = await fetch(`/getSystolicByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchTemperatureChart(){
+        const temperatureData = await fetchTemperatureData(patientId);
+        const response = await fetch('http://localhost:5000/analyze_temperature', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(temperatureData)
+        });
+        const result = await response.json();
+        console.log(result);
+        document.getElementById('temperature-chart').src = 'data:image/png;base64,' + result.image;
+    }
+    async function fetchSystolicChart(){
+        const systolicData = await fetchSystolicData(patientId);
+        const response = await fetch('http://localhost:5000/analyze_systolic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(systolicData)
+        });
+        const result = await response.json();
+        console.log(result);
+        document.getElementById('systolic-chart').src = 'data:image/png;base64,' + result.image;
+    }
+    async function fetchSaturationChart(){
+        const saturationData = await fetchSaturationData(patientId);
+        const response = await fetch('http://localhost:5000/analyze_saturation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(saturationData)
+        });
+        const result = await response.json();
+        console.log(result);
+        document.getElementById('saturation-chart').src = 'data:image/png;base64,' + result.image;
+    }
+    async function fetchRespirationRateChart(){
+        const respirationRateData = await fetchRespirationRateData(patientId);
+        const response = await fetch('http://localhost:5000/analyze_respiration_rate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(respirationRateData)
+        });
+        const result = await response.json();
+        console.log(result);
+        document.getElementById('respiration-rate-chart').src = 'data:image/png;base64,' + result.image;
+    }
+    async function fetchPulseChart(){
+        const pulseData = await fetchPulseData(patientId);
+        const response = await fetch('http://localhost:5000/analyze_pulse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(pulseData)
+        });
+        const result = await response.json();
+        console.log(result);
+        document.getElementById('pulse-rate-chart').src = 'data:image/png;base64,' + result.image;
+    }
+    const patientId = /*[[${patient.getId()}]]*/ '1';
+    fetchTemperatureChart(patientId);
+    fetchSaturationChart(patientId);
+    fetchRespirationRateChart();
+    fetchPulseChart();
+    fetchSystolicChart();
 </script>
 </body>
 </html>

@@ -8,28 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
-@Service
-public class VitalsRecordService {
-    @Autowired
-    private VitalsRecordRepository vitalsRepository;
+public interface VitalsRecordService {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    List<VitalsRecord> getAllVitals();
 
-    public List<VitalsRecord> getAllVitals() {
-        return vitalsRepository.findAll();
-    }
+    List<VitalsRecord> getVitalsByPatientId(Long patientId);
 
-    public List<VitalsRecord> getVitalsByPatientId(Long patientId) {
-        return vitalsRepository.findByPatientId(patientId);
-    }
-
-    public VitalsRecord addVitals(Long patientId, VitalsRecord vitals) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
-        vitals.setPatient(patient);
-        return vitalsRepository.save(vitals);
-    }
+    VitalsRecord addVitals(Long patientId, VitalsRecord vitals);
+    VitalsRecord findLatestVitalsByPatientId(Long patientId);
 
 }

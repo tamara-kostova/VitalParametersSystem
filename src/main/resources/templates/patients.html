@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>MySensor</title>
@@ -16,6 +16,16 @@
         <input type="submit" value="Search">
     </form>
 </div>
+<div>
+    <a href="/add-patient">Add New Patient</a>
+</div>
+<table>
+    <tbody>
+    <tr th:each="patient : ${allPatients}">
+        <td th:text="${patient.getName()}"></td>
+    </tr>
+    </tbody>
+</table>
 <div id="Info">
     <h1>Patient Id</h1>
     <h1 id="Info1">Status</h1>

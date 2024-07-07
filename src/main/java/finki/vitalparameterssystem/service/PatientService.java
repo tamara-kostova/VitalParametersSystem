@@ -5,20 +5,17 @@ import finki.vitalparameterssystem.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class PatientService {
 
-    @Autowired
-    private PatientRepository patientRepository;
+public interface PatientService {
+    List<Patient> getAllPatients();
 
-    public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
-    }
-
-    public Optional<Patient> getPatientById(Long id) {
-        return patientRepository.findById(id);
-    }
+    Optional<Patient> getPatientById(Long id);
+    Optional<Patient> savePatient(Patient patient);
+    Optional<Patient> editPatient (Long id, String name, String surname, String gender, LocalDate dateOfBirth, Integer age, String embg);
+    void deletePatientById(Long id);
+    List<Patient> getAllPatientsDeletedIsFalse();
 }
