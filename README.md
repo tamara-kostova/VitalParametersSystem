@@ -38,8 +38,7 @@ inserting data manually:
 
 
 ## For visualizations
-pip install Flask
-pip install matplotlib
-pip install flask-cos 
-
-python analyzer.py
+1. pip install Flask
+2. pip install matplotlib
+3. pip install flask-cos 
+4. python analyzer.py
