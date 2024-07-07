@@ -13,9 +13,11 @@ import java.nio.file.StandardCopyOption;
 @Component
 public class PythonScriptRunner {
 
+    private Process process;
+
     @PostConstruct
     public void runPythonScript() {
-        new Thread(() -> {
+        Thread scriptThread = new Thread(() -> {
             try {
                 // Path to your Python script relative to the resources folder
                 ClassPathResource resource = new ClassPathResource("simulator.py");
@@ -24,7 +26,7 @@ public class PythonScriptRunner {
 
                 // Execute the Python script
                 ProcessBuilder processBuilder = new ProcessBuilder("python", tempScript.toString());
-                Process process = processBuilder.start();
+                process = processBuilder.start();
 
                 // Capture the output of the script
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -43,6 +45,20 @@ public class PythonScriptRunner {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+
+        scriptThread.start();
+
+        // Register a shutdown hook to terminate the Python script when the JVM shuts down
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (process != null) {
+                process.destroy();
+                try {
+                    process.waitFor();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
     }
 }
