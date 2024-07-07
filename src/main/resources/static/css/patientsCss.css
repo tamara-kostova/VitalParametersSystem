@@ -2,6 +2,73 @@
 body{
     background-image: linear-gradient(to right, #0f768a, #18779b, #399edc, rgb(128, 177, 234));
 }
+.addPatientButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #3d3d3d; /* Darker text color for better readability */
+    text-decoration: none;
+    border-radius: 5px;
+    background-image: linear-gradient(45deg, #f5f5dc, #e3cbbf); /* Cream and beige gradient */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+/* Button Hover Effect */
+.addPatientButton:hover {
+    background-image: linear-gradient(45deg, #e3cbbf, #f5f5dc); /* Reversed gradient on hover */
+    transform: scale(1.05);
+}
+
+/* Button Active Effect */
+.addPatientButton:active {
+    background-color: #e3cbbf;
+    transform: scale(0.95);
+}
+#patientSearch form {
+    display: flex;
+    align-items: center;
+}
+
+#patientSearch label {
+    font-size: 18px;
+    color: #fff;
+}
+
+#patientSearch input[type="number"] {
+    padding: 8px;
+    font-size: 16px;
+    border: 2px solid #f5f5dc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#patientSearch input[type="submit"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-image: linear-gradient(45deg, #f5f5dc, #e3cbbf); /* Cream and beige gradient */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#patientSearch input[type="submit"]:hover {
+    background-image: linear-gradient(45deg, #e3cbbf, #f5f5dc); /* Reversed gradient on hover */
+    transform: scale(1.05);
+}
+
+#patientSearch input[type="submit"]:active {
+    background-color: #e3cbbf;
+    transform: scale(0.95);
+}
 .Patient{
     border: blanchedalmond 3px solid;
     display: flex;
