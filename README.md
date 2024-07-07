@@ -40,5 +40,5 @@ inserting data manually:
 ## For visualizations
 1. pip install Flask
 2. pip install matplotlib
-3. pip install flask-cos 
+3. pip install flask-cors 
 4. python analyzer.py
