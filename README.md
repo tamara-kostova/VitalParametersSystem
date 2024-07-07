@@ -10,6 +10,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 Check that TimescaleDB is installed
 \dx
+
 3. you will need to
 
 net stop postgresql-x64-16
