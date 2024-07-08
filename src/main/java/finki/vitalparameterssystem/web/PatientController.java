@@ -106,5 +106,24 @@ public class PatientController {
         this.patientService.deletePatientById(id);
         return "redirect:/patients";
     }
+    @PostMapping("/patients/activate/{id}")
+    public String activate(@PathVariable Long id) {
+        if (this.patientService.getPatientById(id).isPresent()) {
+            Patient patient = this.patientService.getPatientById(id).get();
+            patient.setActive(true);
+            patientService.savePatient(patient);
+        }
+        return "redirect:/patients";
+    }
+
+    @PostMapping("/patients/deactivate/{id}")
+    public String deactivate(@PathVariable Long id) {
+        if (this.patientService.getPatientById(id).isPresent()) {
+            Patient patient = this.patientService.getPatientById(id).get();
+            patient.setActive(false);
+            patientService.savePatient(patient);
+        }
+        return "redirect:/patients";
+    }
 }
 

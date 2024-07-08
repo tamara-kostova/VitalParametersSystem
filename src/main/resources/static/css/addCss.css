@@ -72,3 +72,11 @@ input[type="submit"]:active {
     background-color: #2a3d7e;
     transform: scale(0.95);
 }
+.btn-back {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+.btn-back:hover {
+    background-color: #0056b3;
+}

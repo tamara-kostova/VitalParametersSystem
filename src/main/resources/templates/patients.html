@@ -31,7 +31,12 @@
         </a>
     </div>
     <div class="PatientStatus">
-        <h1 th:text="${patient.active ? 'Active' : 'Deactive'}"></h1>
+        <form th:if="${patient.active}" th:action="@{/patients/deactivate/{id}(id=${patient.id})}" method="post">
+            <button type="submit" class="btn btn-success">Active</button>
+        </form>
+        <form th:if="${!patient.active}" th:action="@{/patients/activate/{id}(id=${patient.id})}" method="post">
+            <button type="submit" class="btn btn-danger">Deactive</button>
+        </form>
     </div>
     <div class="PatientHealth">
         <h1>Normal</h1>

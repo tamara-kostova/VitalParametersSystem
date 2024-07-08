@@ -1,4 +1,21 @@
 # VitalParametersSystem
+## Views
+
+home:
+![img_2.png](img_2.png)
+
+patients:
+![img_3.png](img_3.png)
+
+details:
+![img_4.png](img_4.png)
+
+add:
+![img_5.png](img_5.png)
+
+
+## setup
+
 set up timescale according to documentation:
 https://docs.timescale.com/self-hosted/latest/install/installation-windows/#install-and-configure-timescaledb-on-postgresql
 1. install postgresql and timescaledb
@@ -26,20 +43,12 @@ after adding the extension
 6. Verify data insertion:
    SELECT * FROM vitals;
 
-
-inserting data manually:
-![img.png](img.png)
-
 7. run python createtables.py to create the tables
 
 8. run python populatepatients.py to populate the patients table
-
-## details view:
-![img_1.png](img_1.png)
 
 
 ## For visualizations
 1. pip install Flask
 2. pip install matplotlib
 3. pip install flask-cors 
-4. python analyzer.py
