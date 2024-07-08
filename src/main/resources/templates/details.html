@@ -9,21 +9,90 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            padding-top: 20px;
-            background-color: #f8f9fa;
+            /*padding-top: 20px;*/
+            background-image: linear-gradient(to right, #0f768a, #18779b, #399edc, rgb(128, 177, 234));
         }
         .header {
-            background-color: #007bff;
-            color: white;
-            padding: 20px 0;
+
+            height: 7rem;
+            color: floralwhite;
+            font-weight: bold;
+            font-family: "Freestyle Script";
+
         }
         .header h1 {
             margin: 0;
+            font-size: 100px!important;
+        }
+        #detailsPerson{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        #leftDetailsPerson{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5rem;
+            width: 50%;
+        }
+        #leftDetailsPerson>img{
+            width:50%;
+            height:50%;
+        }
+
+        #leftDetailsPerson>div{
+            width:100%
         }
         .card {
             border: none;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        #personInfo{
+            height: 100%;
+            width: 80%;
+            background-image: linear-gradient(to right, rgba(255, 255, 224, 0.28), rgba(255, 255, 153, 0.26), rgba(255, 255, 102, 0.28), rgba(255, 255, 51, 0.28));
+            border: 2px saddlebrown solid;
+            text-align: start;
+            font-size: larger;
+        }
+        #personInfo>span{
+            font-size: x-large;
+            color: #3f0256;
+        }
+        #buttons{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #buttons>div>a{
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007BFF;
+            border: 2px solid #007BFF;
+            border-radius: 5px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #buttons>div>a:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        #buttons>div>a:active {
+            background-color: #004085; /* Even darker background on active */
+            border-color: #004085; /* Even darker border on active */
+        }
+        #buttons>div>a:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.5);
+        }
+
         .table thead th {
             background-color: #007bff;
             color: white;
@@ -42,150 +111,251 @@
         .ecg-chart-container {
             margin-top: 20px;
         }
+        .form-container {
+            padding-right: 7.5rem;
+
+
+            border-radius: 10px; /* Rounded corners for form */
+
+        }
+
+        .form-container form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #fff; /* Text color */
+            background-color: #dc3545; /* Background color */
+            /*border: 2px solid #dc3545; !* Border color *!*/
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: background-color 0.6s, border-color 0.6s; /* Smooth transitions */
+        }
+
+        .form-container button:hover {
+            background-color: #a90c1d; /* Darker background on hover */
+            border-color: #c82333; /* Darker border on hover */
+        }
+
+        .form-container button:active {
+            background-color: #bd2130; /* Even darker background on active */
+            border-color: #bd2130; /* Even darker border on active */
+        }
+
+        .form-container button:focus {
+            outline: none; /* Remove default focus outline */
+            box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.5); /* Custom focus outline */
+        }
+        #detailsVitals{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #detailsVitals>div>h1{
+            background-image: linear-gradient(45deg, #bdbd46, #e3e38e, #c4be40, rgb(248, 238, 142), lightgoldenrodyellow);
+            text-align: center;
+            color: #131380;
+            font-weight: bold;
+            font-family: "Freestyle Script";
+        }
+        #detailsVitals>div{
+            width: 35%;
+        }
+        .celina{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .prv{
+            border: #3f0256 2px solid;
+            background-color: white;
+            margin-left: 3rem;
+            border-radius: 15px;
+            font-size: x-large;
+            /*padding-left: 1rem;*/
+        }
+        .vtor{
+            border: #3f0256 2px solid;
+            background-color: white;
+            margin-right: 6rem;
+            border-radius: 15px;
+            font-size: x-large;
+        }
+        .vtor>div{
+            padding-left: 3rem;
+        }
+
+
     </style>
 </head>
 <body>
 <!-- Header -->
-<div class="header text-center">
+<div class="header text-center" style="height: 70%">
     <h1>Patient Details</h1>
 </div>
 
-<div class="container mt-4">
-    <div class="row">
-    <div class="card mb-4 col-6">
-        <div class="card-body">
-            <h4 class="card-title mb-3">Patient Information</h4>
-            <p><strong>Name:</strong> <span th:text="${patient.name}"></span></p>
-            <p><strong>Surname:</strong> <span th:text="${patient.surname}"></span></p>
-            <p><strong>Date of Birth:</strong> <span th:text="${patient.dateOfBirth}"></span></p>
-            <p><strong>Gender:</strong> <span th:text="${patient.gender}"></span></p>
-            <p><strong>Age:</strong> <span th:text="${patient.age}"></span></p>
+<!--<div class="container mt-4" id="detailsPerson">-->
+<div class="mt-4" id="detailsPerson">
+    <div id="leftDetailsPerson">
+        <img src="/images/istockphoto-136191616-612x612-removebg-preview.jpg">
+        <div class="row">
+            <div class="card mb-4 col-6" id="personInfo">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold" >Patient Information</h4>
+                    <!--          <p><strong>Name:</strong> <span th:text="${patient.name}" style="color: #3f0256;font-weight: bold"></span></p>-->
+                    <p><strong>Name:</strong> <span style="color: #3f0256;font-weight: bold"> Ilija </span></p>
+                    <p><strong>Surname:</strong> <span th:text="${patient.surname}" style="color: #3f0256;font-weight: bold"></span></p>
+                    <p><strong>Date of Birth:</strong> <span th:text="${patient.dateOfBirth}" style="color: #3f0256;font-weight: bold"></span></p>
+                    <p><strong>Gender:</strong> <span th:text="${patient.gender}" style="color: #3f0256;font-weight: bold"></span></p>
+                    <p><strong>Age:</strong> <span th:text="${patient.age}" style="color: #3f0256;font-weight: bold"></span></p>
+                </div>
+            </div>
+            <div id="buttons">
+
+                <div>
+                    <a href="patients/edit-patient/{id}">Edit</a>
+                    <!--            <a th:href="@{'patients/edit-patient/{id}' (id=${patient.getId()})}">Edit</a>-->
+                </div>
+                <form th:action="@{'/patients/delete-patient/' + ${patient.getId()}}" th:method="POST" class="form-container">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete?')">Delete</button>
+                </form>
+            </div>
+
         </div>
+
     </div>
     <div class="col-6">
         <h1>Live Monitoring</h1>
         <!--ECG grafikot ovde -->
     </div>
-    </div>
-    <div>
-        <a th:href="@{'patients/edit-patient/{id}' (id=${patient.getId()})}">Edit</a>
-    </div>
-    <div>
-        <form th:action="@{'/patients/delete-patient/' + ${patient.getId()}}" th:method="POST">
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" onclick="return confirm('Are you sure you want to delete?')">Delete</button>
-        </form>
-    </div>
-    </div>
-<a href="/patients" class="btn btn-back mt-4">Back to Patients</a>
-    <!-- Vitals Records -->
-    <!--<h2 class="mb-4">Vitals Records</h2>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead>
-            <tr>
-                <th>Time</th>
-                <th>Temperature</th>
-                <th>Pulse</th>
-                <th>Respiration Rate</th>
-                <th>Systolic</th>
-                <th>Diastolic</th>
-                <th>ECG</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="vital, iterStat : ${vitalsRecords}">
-                <td th:text="${vital.time}"></td>
-                <td th:text="${vital.temperature}"></td>
-                <td th:text="${vital.pulse}"></td>
-                <td th:text="${vital.respirationRate}"></td>
-                <td th:text="${vital.systolic}"></td>
-                <td th:text="${vital.diastolic}"></td>
-                <td>
-                    <div class="ecg-chart-container">
-                        <canvas th:id="'ecg-chart-' + ${iterStat.index}"></canvas>
-                    </div>
-                    <input type="hidden" th:id="'ecg-data-' + ${iterStat.index}" th:value="${vital.ecgString}">
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>-->
-<div class="container">
-    <div class="row">
-        <div class="col-6">
-            <h1>Vital Parameters</h1>
-            <div class="container">
-                <div class="row">
-                    <div class="col-6">BP</div>
-                </div>
-                <div class="row">
-                    <div class="col-6"><p th:text="${vitalsRecords.getSystolic()}"></p><p th:text="${vitalsRecords.getDiastolic()}"></p></div>
-                </div>
+
+
+
+</div>
+
+<a href="/patients" class="btn btn-back mt-4" style="margin-top: 2rem;margin-bottom: 2rem;margin-left: 1rem">Back to Patients</a>
+<!-- Vitals Records -->
+<!--<h2 class="mb-4">Vitals Records</h2>
+// <div class="table-responsive">
+//     <table class="table table-bordered table-striped">
+//         <thead>
+//         <tr>
+//             <th>Time</th>
+//             <th>Temperature</th>
+//             <th>Pulse</th>
+//             <th>Respiration Rate</th>
+//             <th>Systolic</th>
+//             <th>Diastolic</th>
+//             <th>ECG</th>
+//         </tr>
+//         </thead>
+//         <tbody>
+//         <tr th:each="vital, iterStat : ${vitalsRecords}">
+//             <td th:text="${vital.time}"></td>
+//             <td th:text="${vital.temperature}"></td>
+//             <td th:text="${vital.pulse}"></td>
+//             <td th:text="${vital.respirationRate}"></td>
+//             <td th:text="${vital.systolic}"></td>
+//             <td th:text="${vital.diastolic}"></td>
+//             <td>
+//                 <div class="ecg-chart-container">
+//                     <canvas th:id="'ecg-chart-' + ${iterStat.index}"></canvas>
+//                 </div>
+//                 <input type="hidden" th:id="'ecg-data-' + ${iterStat.index}" th:value="${vital.ecgString}">
+//             </td>
+//         </tr>
+//         </tbody>
+//     </table>
+// </div>-->
+
+
+<div class="row" id="detailsVitals">
+    <div class="col-6">
+        <h1>Vital Parameters</h1>
+        <div class="celina">
+            <div class="prv row">
+                <div class="col-6">BP</div>
             </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-6">HR</div>
-                </div>
-                <div class="row">
-                    <div class="col-6"><p th:text="${vitalsRecords.getPulse()}"></p></div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-6">SpO2</div>
-                </div>
-                <div class="row">
-                    <div class="col-6"><p th:text="${vitalsRecords.getSaturation()}"></p></div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-6">RR</div>
-                </div>
-                <div class="row">
-                    <div class="col-6"><p th:text="${vitalsRecords.getRespirationRate()}"></p></div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-6">Tmp</div>
-                </div>
-                <div class="row">
-                    <div class="col-6"><p th:text="${vitalsRecords.getTemperature()}"></p></div>
+            <div class="vtor row">
+                <div class="col-6" style="display: flex;justify-content: center">
+                    <span th:text="${vitalsRecords.getSystolic()}">/</span>
+                    <span th:text="${vitalsRecords.getDiastolic()}"></span>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <h1>Health status</h1>
-            <div class="container">
-                <div id="sys-chart">
-                    <img id="systolic-chart" src="" alt="BP Chart">
-                </div>
+        <div class="celina">
+            <div class="prv row">
+                <div class="col-6">HR</div>
             </div>
-            <div class="container">
+            <div class="vtor row">
+                <div class="col-6"><p th:text="${vitalsRecords.getPulse()}"></p></div>
+            </div>
+        </div>
+        <div class="celina">
+            <div class="prv row">
+                <div class="col-6">SpO2</div>
+            </div>
+            <div class="vtor row">
+                <div class="col-6"><p th:text="${vitalsRecords.getSaturation()}"></p></div>
+            </div>
+        </div>
+        <div class="celina">
+            <div class="prv row">
+                <div class="col-6">RR</div>
+            </div>
+            <div class="vtor row">
+                <div class="col-6"><p th:text="${vitalsRecords.getRespirationRate()}"></p></div>
+            </div>
+        </div>
+        <div class="celina">
+            <div class="prv row">
+                <div class="col-6">Tmp</div>
+            </div>
+            <div class="vtor row">
+                <div class="col-6"><p th:text="${vitalsRecords.getTemperature()}"></p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6" style="padding-top: -13rem">
+        <h1>Health status</h1>
+        <div class="container">
+            <div id="sys-chart">
+                <img id="systolic-chart" src="" alt="BP Chart">
+            </div>
+        </div>
+        <div class="container">
             <div id="chart">
                 <img id="temperature-chart" src="" alt="Temperature Chart">
             </div>
-            </div>
-            <div class="container">
+        </div>
+        <div class="container">
             <div id="sat-chart">
                 <img id="saturation-chart" src="" alt="Saturation Chart">
             </div>
+        </div>
+        <div class="container">
+            <div id="respiration-chart">
+                <img id="respiration-rate-chart" src="" alt="Respiration Rate Chart">
             </div>
-            <div class="container">
-                <div id="respiration-chart">
-                    <img id="respiration-rate-chart" src="" alt="Respiration Rate Chart">
-                </div>
-            </div>
-            <div class="container">
-                <div id="pulse-chart">
-                    <img id="pulse-rate-chart" src="" alt="Pulse Rate Chart">
-                </div>
+        </div>
+        <div class="container">
+            <div id="pulse-chart">
+                <img id="pulse-rate-chart" src="" alt="Pulse Rate Chart">
             </div>
         </div>
     </div>
 </div>
+
+
 
 <script>
     <!--script for plotting the ecg signals-->
