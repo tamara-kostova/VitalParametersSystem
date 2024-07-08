@@ -4,7 +4,6 @@ import finki.vitalparameterssystem.model.Patient;
 import finki.vitalparameterssystem.model.VitalsRecord;
 import finki.vitalparameterssystem.service.PatientService;
 import finki.vitalparameterssystem.service.VitalsRecordService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,11 +32,6 @@ public class PatientController {
         this.patientService = patientService;
     }
 
-    //    @GetMapping("/patients")
-//    public String listPatients(Model model) {
-//        model.addAttribute("patients", patientService.getAllPatients());
-//        return "patientsStaro";
-//    }
     @GetMapping("/patients")
     public String searchPatientById(@RequestParam(value = "id",required = false) Long id, Model model) {
         if (id == null) {
@@ -72,7 +66,7 @@ public class PatientController {
         }
     }
     @GetMapping("/add-patient")
-    public String addPatientPage(Model model){
+    public String addPatientPage(){
         return "add-patient";
     }
     @PostMapping("/addPatient")
@@ -82,8 +76,8 @@ public class PatientController {
                               @RequestParam Integer age,
                               @RequestParam String gender,
                               @RequestParam String embg){
-        Patient patient = new Patient((long)this.patientService.getAllPatients().size()+1, name
-        , surname, gender, LocalDate.parse(dateOfBirth), age, embg, false, false);
+        Patient patient = new Patient(name
+        , surname, gender, LocalDate.parse(dateOfBirth), age, embg, true, false);
         this.patientService.savePatient(patient);
         return "redirect:/patients";
     }

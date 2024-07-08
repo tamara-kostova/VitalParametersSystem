@@ -1,17 +1,12 @@
 package finki.vitalparameterssystem.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "patients")
 public class Patient {
     @Id
@@ -25,5 +20,17 @@ public class Patient {
     private String embg;
     private Boolean active;
     private Boolean deleted;
+
+    public Patient(String name, String surname, String gender, LocalDate dateOfBirth, Integer age, String embg, Boolean active, Boolean deleted) {
+        this.name = name;
+        this.surname = surname;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.age = age;
+        this.embg = embg;
+        this.active = active;
+        this.deleted = deleted;
+    }
+    public Patient(){}
 }
 

@@ -19,55 +19,23 @@
 <div>
     <a class="addPatientButton" href="/add-patient">Add New Patient</a>
 </div>
-<table>
-    <tbody>
-    <tr th:each="patient : ${allPatients}">
-        <td th:text="${patient.getName()}"></td>
-    </tr>
-    </tbody>
-</table>
 <div id="Info">
     <h1>Patient Id</h1>
     <h1 id="Info1">Status</h1>
     <h1 id="Info2">LLM Health Score</h1>
 </div>
-<div class="Patient">
+<div th:each="patient : ${allPatients}" class="Patient">
     <div class="PatientId">
-        <h1>1</h1>
+        <a th:href="@{'/patients/' + ${patient.id}}">
+            <h1 th:text="${patient.id}"></h1>
+        </a>
     </div>
     <div class="PatientStatus">
-        <h1>Active</h1>
-
+        <h1 th:text="${patient.active ? 'Active' : 'Deactive'}"></h1>
     </div>
     <div class="PatientHealth">
-        <h1>Good</h1>
+        <h1>Normal</h1>
     </div>
-
 </div>
-<div class="Patient">
-    <div class="PatientId">
-        <h1>1</h1>
-    </div>
-    <div class="PatientStatus">
-        <h1>Active</h1>
-
-    </div>
-    <div class="PatientHealth">
-        <h1>Unknown</h1>
-    </div>
-
-</div>
-<!--Ova e za pacientite nekoj neka go proveri samo-->
-<!--<div th:each="patient : ${patients}" class="Patient">-->
-<!--    <div class="PatientId">-->
-<!--        <h1 th:text="${patient.id}">1</h1>-->
-<!--    </div>-->
-<!--    <div class="PatientStatus">-->
-<!--        <h1 th:text="${patient.status}">Active</h1>-->
-<!--    </div>-->
-<!--    <div class="PatientHealth">-->
-<!--        <h1 th:text="${patient.health}">Good</h1>-->
-<!--    </div>-->
-<!--</div>-->
 </body>
 </html>
