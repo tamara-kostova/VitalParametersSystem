@@ -10,6 +10,9 @@ patients:
 details:
 ![img_4.png](img_4.png)
 
+all charts:
+![img_6.png](img_6.png)
+
 add:
 ![img_5.png](img_5.png)
 
