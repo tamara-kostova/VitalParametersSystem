@@ -115,4 +115,22 @@ public class DataController {
                 diastolicList.add(vitalsRecord.getDiastolic()));
         return diastolicList;
     }
+    @GetMapping("/getEcgByPatientId/{id}")
+    public List<Double> getEcgByPatientId(@PathVariable Long id) {
+        List<VitalsRecord> recordList = vitalsRecordService.getVitalsByPatientId(id);
+        int size = recordList.size();
+        List<VitalsRecord> last10Records = recordList.subList(Math.max(size - 10, 0), size);
+        List<Double> ecgList = new ArrayList<>();
+        for (VitalsRecord record : last10Records){
+            String ecgs = record.getEcgString();
+            for (String value : ecgs.split(",")) {
+                try {
+                    ecgList.add(Double.parseDouble(value.trim()));
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing ECG value: " + value);
+                }
+            }
+        }
+        return ecgList;
+    }
 }

@@ -210,5 +210,29 @@ def analyze_systolic_rate():
     except Exception as e:
         print("Error processing request:", e)
         return str(e), 500
+@app.route('/analyze_ecg/<int:patient_id>', methods=['POST'])
+def analyze_ecg(patient_id):
+    try:
+        data = request.json
+        ecg_values = data
+        print('ecg:')
+        print(ecg_values)
+        plt.figure(figsize=(10, 5))
+        plt.plot(ecg_values, color='blue')
+        plt.title(f'ECG Analysis for Patient {patient_id}')
+        plt.xlabel('Time')
+        plt.ylabel('ECG Value')
+
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+        buf.close()
+
+        return jsonify({'image': image_base64})
+    except Exception as e:
+        print("Error processing request:", e)
+        return str(e), 500
+
 if __name__ == '__main__':
     app.run(port=5000)

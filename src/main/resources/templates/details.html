@@ -45,7 +45,6 @@
     </div>
     <div class="col-6">
         <h1>Live Monitoring</h1>
-        <!--ECG grafikot ovde -->
     </div>
 </div>
 
@@ -102,6 +101,11 @@
     <div class="col-6" style="padding-top: -13rem">
         <h1>Health status</h1>
         <div class="container">
+            <div id="">
+                <img id="ecg-chart" src="" alt="Ecg Chart">
+            </div>
+        </div>
+        <div class="container">
             <div id="sys-chart">
                 <img id="systolic-chart" src="" alt="BP Chart">
             </div>
@@ -132,43 +136,6 @@
 
 
 <script>
-    <!--script for plotting the ecg signals-->
-    document.addEventListener("DOMContentLoaded", function () {
-        const ecgContainers = document.querySelectorAll(".ecg-chart-container");
-
-        ecgContainers.forEach((container, index) => {
-            const ecgDataInput = document.getElementById(`ecg-data-${index}`);
-            const ecgData = ecgDataInput.value.split(',').map(Number);
-
-            const ctx = document.getElementById(`ecg-chart-${index}`).getContext('2d');
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ecgData.map((_, i) => i),
-                    datasets: [{
-                        label: 'ECG',
-                        data: ecgData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom'
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        });
-    });
     async function fetchTemperatureData(patientId) {
         const response = await fetch(`/getTemperatureByPatientId/${patientId}`);
         return await response.json();
@@ -187,6 +154,10 @@
     }
     async function fetchSystolicData(patientId) {
         const response = await fetch(`/getSystolicByPatientId/${patientId}`);
+        return await response.json();
+    }
+    async function fetchECGData(patientId) {
+        const response = await fetch(`/getEcgByPatientId/${patientId}`);
         return await response.json();
     }
     async function fetchTemperatureChart(){
@@ -254,11 +225,33 @@
         console.log(result);
         document.getElementById('pulse-rate-chart').src = 'data:image/png;base64,' + result.image;
     }
+    async function fetchECGChart(patientId){
+        const ecgData = await fetchECGData(patientId);
+        console.log('got the data');
+        const response = await fetch(`http://localhost:5000/analyze_ecg/${patientId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(ecgData)
+        });
+        console.log('got the chart from the controller');
+        if (response.ok) {
+            const result = await response.json();
+            console.log('chart');
+            console.log(result);
+            document.getElementById('ecg-chart').src = 'data:image/png;base64,' + result.image;
+        } else {
+            console.error('Error fetching ECG chart:', response.statusText);
+        }
+    }
+
     const patientId = /*[[${patient.getId()}]]*/ '1';
     fetchTemperatureChart(patientId);
     fetchSaturationChart(patientId);
     fetchRespirationRateChart();
     fetchPulseChart();
+    fetchECGChart(patientId);
     fetchSystolicChart();
 </script>
 </body>
