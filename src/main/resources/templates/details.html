@@ -58,9 +58,9 @@
             </div>
             <div class="vtor row">
                 <div class="col-6" style="display: flex;justify-content: center">
-                    <span th:text="${vitalsRecords.getSystolic()}"></span>
+                    <span id="systolic" th:text="${vitalsRecords.getSystolic()}"></span>
                     <span>/</span>
-                    <span th:text="${vitalsRecords.getDiastolic()}"></span>
+                    <span id="diastolic" th:text="${vitalsRecords.getDiastolic()}"></span>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
                 <div class="col-6">HR</div>
             </div>
             <div class="vtor row">
-                <div class="col-6"><p th:text="${vitalsRecords.getPulse()}"></p></div>
+                <div class="col-6"><p id="pulse" th:text="${vitalsRecords.getPulse()}"></p></div>
             </div>
         </div>
         <div class="celina">
@@ -77,7 +77,7 @@
                 <div class="col-6">SpO2</div>
             </div>
             <div class="vtor row">
-                <div class="col-6"><p th:text="${vitalsRecords.getSaturation()}"></p></div>
+                <div class="col-6"><p id="saturation" th:text="${vitalsRecords.getSaturation()}"></p></div>
             </div>
         </div>
         <div class="celina">
@@ -85,7 +85,7 @@
                 <div class="col-6">RR</div>
             </div>
             <div class="vtor row">
-                <div class="col-6"><p th:text="${vitalsRecords.getRespirationRate()}"></p></div>
+                <div class="col-6"><p id="respiration" th:text="${vitalsRecords.getRespirationRate()}"></p></div>
             </div>
         </div>
         <div class="celina">
@@ -93,7 +93,7 @@
                 <div class="col-6">Tmp</div>
             </div>
             <div class="vtor row">
-                <div class="col-6"><p th:text="${vitalsRecords.getTemperature()}"></p></div>
+                <div class="col-6"><p id="temperature" th:text="${vitalsRecords.getTemperature()}"></p></div>
             </div>
         </div>
     </div>
@@ -253,6 +253,32 @@
     fetchPulseChart();
     fetchECGChart(patientId);
     fetchSystolicChart();
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Adding socket")
+        var socket = new SockJS('http://localhost:8080//ws', {transports: ['websocket']});
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/vitals', function(message) {
+                console.log('subscribed')
+                var vitalRecord = JSON.parse(message.body);
+                updateVitalRecord(vitalRecord);
+            });
+        });
+
+        function updateVitalRecord(vitalRecord) {
+            console.log('updating records')
+            document.getElementById("temperature").innerText = vitalRecord.temperature;
+            document.getElementById("pulse").innerText = vitalRecord.pulse;
+            document.getElementById("respirationRate").innerText = vitalRecord.respirationRate;
+            document.getElementById("systolic").innerText = vitalRecord.systolic;
+            document.getElementById("diastolic").innerText = vitalRecord.diastolic;
+            // document.getElementById("ecgString").innerText = vitalRecord.ecgString;
+            // document.getElementById("time").innerText = vitalRecord.time;
+            document.getElementById("saturation").innerText = vitalRecord.saturation;
+        }
+    });
 </script>
 </body>
 </html>

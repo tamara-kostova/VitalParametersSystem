@@ -11,7 +11,8 @@ details:
 ![img_4.png](img_4.png)
 
 all charts:
-![img_6.png](img_6.png)
+![img_7.png](img_7.png)
+![img_8.png](img_8.png)
 
 add:
 ![img_5.png](img_5.png)
@@ -49,6 +50,8 @@ after adding the extension
 7. run python createtables.py to create the tables
 
 8. run python populatepatients.py to populate the patients table
+
+pip install websocket-client
 
 
 ## For visualizations

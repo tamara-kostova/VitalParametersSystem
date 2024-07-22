@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 import neurokit2 as nk
 import psycopg2
 import matplotlib.pyplot as plt
+import websocket
+import json
 
 previous_values = {}
 
@@ -37,12 +39,37 @@ def write_to_timescaledb(patient_id, vitals):
         connection.commit()
         count = cursor.rowcount
         print(f"Record {record_to_insert} inserted successfully into vitals table")
+        try:
+            send_websocket_message(record_to_insert)
+        except Exception as e:
+            print(f"Error during WebSocket communication: {e}")
     except (Exception, psycopg2.Error) as error:
         print("Failed to insert record into vitals table", error)
     finally:
         if connection:
             cursor.close()
             connection.close()
+
+def send_websocket_message(vital_record):
+    try:
+        ws = websocket.create_connection("ws://localhost:8080/ws")
+        print('initializing connection')
+        message = {
+            "patientId": vital_record[0],
+            "temperature": vital_record[1],
+            "pulse": vital_record[2],
+            "respirationRate": vital_record[3],
+            "systolic": vital_record[4],
+            "diastolic": vital_record[5],
+            "ecgString": vital_record[6],
+            "time": vital_record[7],
+            "saturation": vital_record[8]
+        }
+        ws.send(json.dumps(message))
+        print('sent data')
+        ws.close()
+    except Exception as e:
+        print(f"Failed to send WebSocket message: {e}")
 
 def get_patients():
     try:
