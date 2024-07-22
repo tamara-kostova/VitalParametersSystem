@@ -13,7 +13,7 @@ def write_to_timescaledb(patient_id, vitals):
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="metallica",
+            password="aleksandra",
             host="localhost",
             port="5432",
             database="postgres"
@@ -52,7 +52,7 @@ def write_to_timescaledb(patient_id, vitals):
 
 def send_websocket_message(vital_record):
     try:
-        ws = websocket.create_connection("ws://localhost:8080/ws")
+        ws = websocket.create_connection("ws://localhost:8080/ws/websocket")
         print('initializing connection')
         message = {
             "patientId": vital_record[0],
@@ -75,7 +75,7 @@ def get_patients():
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="metallica",
+            password="aleksandra",
             host="127.0.0.1",
             port="5432",
             database="postgres"

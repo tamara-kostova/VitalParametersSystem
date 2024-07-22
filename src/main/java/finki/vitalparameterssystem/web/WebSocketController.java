@@ -27,6 +27,8 @@ public class WebSocketController {
 //    }
     @PostMapping("/vitals")
     public void sendVitals(@RequestBody VitalsRecord vitalRecord) {
+        System.out.println(vitalRecord);
+        System.out.println("Sending Vitals: " + vitalRecord);
         messagingTemplate.convertAndSend("/topic/vitals", vitalRecord);
     }
 }
