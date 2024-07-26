@@ -20,7 +20,7 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    private VitalsRecordService vitalsRecordService;
+    private final VitalsRecordService vitalsRecordService;
 
     @GetMapping({"","/","/home"})
     public String home(){

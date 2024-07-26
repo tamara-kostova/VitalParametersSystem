@@ -266,16 +266,17 @@
             stompClient.subscribe('/topic/vitals', function(message) {
                 console.log('Received message: ' + message.body);
                 var vitalRecord = JSON.parse(message.body);
-                console.log(vitalRecord);
+                console.log(vitalRecord.respirationRate);
                 updateVitalRecord(vitalRecord);
             });
         });
 
         function updateVitalRecord(vitalRecord) {
             console.log('updating records')
+            console.log(vitalRecord.respirationRate);
             document.getElementById("temperature").innerText = vitalRecord.temperature;
             document.getElementById("pulse").innerText = vitalRecord.pulse;
-            document.getElementById("respirationRate").innerText = vitalRecord.respirationRate;
+            document.getElementById("respiration").innerText = vitalRecord.respirationRate;
             document.getElementById("systolic").innerText = vitalRecord.systolic;
             document.getElementById("diastolic").innerText = vitalRecord.diastolic;
             // document.getElementById("ecgString").innerText = vitalRecord.ecgString;
