@@ -252,19 +252,16 @@
         var stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function(frame) {
-            console.log("TEST");
-            console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/vitals', function(message) {
                 console.log('Received message: ' + message.body);
                 var vitalRecord = JSON.parse(message.body);
-                console.log(vitalRecord.respirationRate);
                 updateVitalRecord(vitalRecord);
             });
+        }, function(error){
+            console.error("Error during Stomp connection", error)
         });
 
         function updateVitalRecord(vitalRecord) {
-            console.log('updating records')
-            console.log(vitalRecord.respirationRate);
             document.getElementById("temperature").innerText = vitalRecord.temperature;
             document.getElementById("pulse").innerText = vitalRecord.pulse;
             document.getElementById("respiration").innerText = vitalRecord.respirationRate;

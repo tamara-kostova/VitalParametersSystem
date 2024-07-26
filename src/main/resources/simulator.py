@@ -6,6 +6,7 @@ import psycopg2
 import matplotlib.pyplot as plt
 import websocket
 import json
+import requests
 
 previous_values = {}
 
@@ -13,7 +14,7 @@ def write_to_timescaledb(patient_id, vitals):
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="aleksandra",
+            password="metallica",
             host="localhost",
             port="5432",
             database="postgres"
@@ -52,9 +53,8 @@ def write_to_timescaledb(patient_id, vitals):
 
 def send_websocket_message(vital_record):
     try:
-        ws = websocket.create_connection("ws://localhost:8080/ws/websocket")
-        print('initializing connection')
-        message = {
+        url = "http://localhost:8080/vitals"
+        data = {
             "patientId": vital_record[0],
             "temperature": vital_record[1],
             "pulse": vital_record[2],
@@ -62,20 +62,21 @@ def send_websocket_message(vital_record):
             "systolic": vital_record[4],
             "diastolic": vital_record[5],
             "ecgString": vital_record[6],
-            "time": vital_record[7],
             "saturation": vital_record[8]
         }
-        ws.send(json.dumps(message))
-        print('sent data')
-        ws.close()
+        response = requests.post(url, json=data)
+        if response.status_code == 200:
+            print('Successfully sent vital record to server')
+        else:
+            print(f'Failed to send vital record. Status code: {response.status_code}')
     except Exception as e:
-        print(f"Failed to send WebSocket message: {e}")
+        print(f"Failed to send vital record: {e}")
 
 def get_patients():
     try:
         connection = psycopg2.connect(
             user="postgres",
-            password="aleksandra",
+            password="metallica",
             host="127.0.0.1",
             port="5432",
             database="postgres"
