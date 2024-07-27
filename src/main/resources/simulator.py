@@ -83,7 +83,7 @@ def get_patients():
         )
         cursor = connection.cursor()
 
-        query = "SELECT id, age FROM patients"
+        query = "SELECT id, age, active FROM patients"
         cursor.execute(query)
         patients = cursor.fetchall()
 
@@ -99,9 +99,12 @@ def simulate_vitals():
     while True:
         patients = get_patients()
         for patient in patients:
-            patient_id, age = patient
-            vitals = generate_vitals(age)
-            write_to_timescaledb(patient_id, vitals)
+            patient_id, age, active = patient
+            if active:
+                print(f'patient id: {patient_id}, active {active}, age: {age}')
+                vitals = generate_vitals(age)
+                print(f'vitals: {vitals}')
+                write_to_timescaledb(patient_id, vitals)
         time.sleep(10)
 
 def initialize_values(age):
@@ -219,14 +222,14 @@ def get_age_based_value(age, adult_min, adult_max, non_adult_min, non_adult_max)
 # Functions for updating values based on previous values
 def update_temperature(previous_temp):
     # Use the previous temperature to slightly alter the new one
-    delta = random.uniform(-0.2, 0.2)  # Small change to simulate real temperature fluctuation
+    delta = random.uniform(-0.1, 0.1)  # Small change to simulate real temperature fluctuation
     new_temp = round(previous_temp + delta, 1)
     return new_temp
 
 
 def update_pulse(previous_pulse, age):
     # Pulse change is small unless there is a significant event
-    delta = random.randint(-5, 5)
+    delta = random.randint(-1, 1)
     new_pulse = previous_pulse + delta
     # Keep pulse within reasonable boundaries based on age
     if age >= 18:
@@ -241,7 +244,7 @@ def update_pulse(previous_pulse, age):
 
 
 def update_respiration_rate(previous_rate, age):
-    delta = random.randint(-2, 2)
+    delta = random.randint(-1, 1)
     new_rate = previous_rate + delta
     # Adjust rates for age groups
     if age >= 18:
@@ -254,8 +257,8 @@ def update_respiration_rate(previous_rate, age):
 
 
 def update_blood_pressure(previous_bp):
-    delta_systolic = random.randint(-10, 10)
-    delta_diastolic = random.randint(-5, 5)
+    delta_systolic = random.randint(-1, 1)
+    delta_diastolic = random.randint(-1, 1)
     new_systolic = max(90, min(previous_bp[0] + delta_systolic, 120))
     new_diastolic = max(60, min(previous_bp[1] + delta_diastolic, 80))
     return new_systolic, new_diastolic
@@ -271,7 +274,7 @@ def update_ecg(pulse):
     return ecg
 
 def update_saturation(previous_saturation):
-    delta_saturation = random.randint(-2, 2)
+    delta_saturation = random.randint(-1, 1)
     new_saturation = max(90, min(previous_saturation + delta_saturation, 100))
     return new_saturation
 
