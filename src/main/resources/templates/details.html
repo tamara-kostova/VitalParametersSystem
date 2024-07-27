@@ -4,26 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/detailsCss.css">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #3f0256;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .vital-sign {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .vital-sign h3 {
+            margin: 0;
+            color: #3f0256;
+        }
+        .chart-container {
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        #buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        #buttons a, #buttons button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+        #buttons a {
+            background-color: #007BFF;
+        }
+        #buttons button {
+            background-color: #dc3545;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-<!-- Header -->
-<div class="header text-center" style="height: 70%">
+<div class="header text-center">
     <h1>Patient Details</h1>
+    <a href="/patients" class="btn btn-back mt-4" style="margin-top: 2rem;margin-bottom: 2rem;margin-left: 1rem">Back to Patients</a>
 </div>
 
-<div class="mt-4" id="detailsPerson">
-    <div id="leftDetailsPerson">
-        <img src="/images/istockphoto-136191616-612x612-removebg-preview.jpg">
-        <div class="row">
-            <div class="card mb-4 col-6" id="personInfo">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold" >Patient Information</h4>
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Patient Information</h4>
                     <p><strong>Name:</strong> <span th:text="${patient.name}" style="color: #3f0256;font-weight: bold"></span></p>
                     <p><strong>Surname:</strong> <span th:text="${patient.surname}" style="color: #3f0256;font-weight: bold"></span></p>
                     <p><strong>Date of Birth:</strong> <span th:text="${patient.dateOfBirth}" style="color: #3f0256;font-weight: bold"></span></p>
@@ -32,112 +82,167 @@
                 </div>
             </div>
             <div id="buttons">
-
-                <div>
-                    <a th:href="@{/patients/edit-patient/{id}(id=${patient.id})}">Edit</a>
-                </div>
+                <a th:href="@{/patients/edit-patient/{id}(id=${patient.id})}" class="btn btn-primary">Edit</a>
                 <form th:action="@{'/patients/delete-patient/' + ${patient.getId()}}" th:method="POST" class="form-container">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" onclick="return confirm('Are you sure you want to delete?')">Delete</button>
                 </form>
             </div>
-
         </div>
-
-    </div>
-    <div class="col-6">
-        <h1>Live Monitoring</h1>
-    </div>
-</div>
-
-<a href="/patients" class="btn btn-back mt-4" style="margin-top: 2rem;margin-bottom: 2rem;margin-left: 1rem">Back to Patients</a>
-<div class="row" id="detailsVitals">
-    <div class="col-6">
-        <h1>Vital Parameters</h1>
-        <div class="celina">
-            <div class="prv row">
-                <div class="col-6">BP</div>
-            </div>
-            <div class="vtor row">
-                <div class="col-6" style="display: flex;justify-content: center">
-                    <span id="systolic" th:text="${vitalsRecords.getSystolic()}"></span>
-                    <span>/</span>
-                    <span id="diastolic" th:text="${vitalsRecords.getDiastolic()}"></span>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Live Monitoring</h4>
+<!--                    <div id="">-->
+<!--                        <img id="ecg-chart" src="" alt="Ecg Chart">-->
+<!--                    </div>-->
                 </div>
             </div>
         </div>
-        <div class="celina">
-            <div class="prv row">
-                <div class="col-6">HR</div>
-            </div>
-            <div class="vtor row">
-                <div class="col-6"><p id="pulse" th:text="${vitalsRecords.getPulse()}"></p></div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Vital Parameters</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="vital-sign">
+                                <h3>BP</h3>
+                                <p><span id="systolic" th:text="${vitalsRecords.getSystolic()}"></span>/<span id="diastolic" th:text="${vitalsRecords.getDiastolic()}"></span> mmHg</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="vital-sign">
+                                <h3>HR</h3>
+                                <p><span id="pulse" th:text="${vitalsRecords.getPulse()}"></span> bpm</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="vital-sign">
+                                <h3>SpO2</h3>
+                                <p><span id="saturation" th:text="${vitalsRecords.getSaturation()}"></span>%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="vital-sign">
+                                <h3>RR</h3>
+                                <p><span id="respiration" th:text="${vitalsRecords.getRespirationRate()}"></span> bpm</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="vital-sign">
+                                <h3>Tmp</h3>
+                                <p><span id="temperature" th:text="${vitalsRecords.getTemperature()}"></span>°C</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="celina">
-            <div class="prv row">
-                <div class="col-6">SpO2</div>
-            </div>
-            <div class="vtor row">
-                <div class="col-6"><p id="saturation" th:text="${vitalsRecords.getSaturation()}"></p></div>
-            </div>
-        </div>
-        <div class="celina">
-            <div class="prv row">
-                <div class="col-6">RR</div>
-            </div>
-            <div class="vtor row">
-                <div class="col-6"><p id="respiration" th:text="${vitalsRecords.getRespirationRate()}"></p></div>
-            </div>
-        </div>
-        <div class="celina">
-            <div class="prv row">
-                <div class="col-6">Tmp</div>
-            </div>
-            <div class="vtor row">
-                <div class="col-6"><p id="temperature" th:text="${vitalsRecords.getTemperature()}"></p></div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Status</h4>
+                    <div class="chart-container">
+                        <canvas id="healthStatusChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-6" style="padding-top: -13rem">
-        <h1>Health status</h1>
-        <div class="container">
-            <div id="">
-                <img id="ecg-chart" src="" alt="Ecg Chart">
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Vital Parameters</h4>
+                    <div id="">
+                        <img id="ecg-chart" src="" alt="Ecg Chart">
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="container">
-            <div id="sys-chart">
-                <img id="systolic-chart" src="" alt="BP Chart">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Status</h4>
+                    <div id="sys-chart">
+                        <img id="systolic-chart" src="" alt="BP Chart">
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="container">
-            <div id="chart">
-                <img id="temperature-chart" src="" alt="Temperature Chart">
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Vital Parameters</h4>
+                    <div id="chart">
+                        <img id="temperature-chart" src="" alt="Temperature Chart">
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="container">
-            <div id="sat-chart">
-                <img id="saturation-chart" src="" alt="Saturation Chart">
-            </div>
-        </div>
-        <div class="container">
-            <div id="respiration-chart">
-                <img id="respiration-rate-chart" src="" alt="Respiration Rate Chart">
-            </div>
-        </div>
-        <div class="container">
-            <div id="pulse-chart">
-                <img id="pulse-rate-chart" src="" alt="Pulse Rate Chart">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Status</h4>
+                    <div id="sat-chart">
+                        <img id="saturation-chart" src="" alt="Saturation Chart">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<script th:inline="javascript">
+    const patientId = /*[[${patient.getId()}]]*/ '1';
 
+    // ECG Chart
+    // const ecgCtx = document.getElementById('ecg-chart').getContext('2d');
+    // const ecgChart = new Chart(ecgCtx, {
+    //     type: 'line',
+    //     data: {
+    //         labels: Array(100).fill(''),
+    //         datasets: [{
+    //             data: Array(100).fill(0),
+    //             borderColor: 'rgb(75, 192, 192)',
+    //             tension: 0.1
+    //         }]
+    //     },
+    //     options: {
+    //         responsive: true,
+    //         maintainAspectRatio: false,
+    //         scales: {
+    //             x: { display: false },
+    //             y: { display: false }
+    //         },
+    //         plugins: { legend: { display: false } }
+    //     }
+    // });
 
-<script>
+    // Health Status Chart
+    const healthStatusCtx = document.getElementById('healthStatusChart').getContext('2d');
+    const healthStatusChart = new Chart(healthStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Normal', 'Warning', 'Critical'],
+            datasets: [{
+                data: [70, 20, 10],
+                backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
+
     async function fetchTemperatureData(patientId) {
         const response = await fetch(`/getTemperatureByPatientId/${patientId}`);
         return await response.json();
@@ -196,6 +301,7 @@
             body: JSON.stringify(saturationData)
         });
         const result = await response.json();
+        console.log(result);
         document.getElementById('saturation-chart').src = 'data:image/png;base64,' + result.image;
     }
     async function fetchRespirationRateChart(){
@@ -233,13 +339,12 @@
         });
         if (response.ok) {
             const result = await response.json();
+            console.log(result);
             document.getElementById('ecg-chart').src = 'data:image/png;base64,' + result.image;
         } else {
             console.error('Error fetching ECG chart:', response.statusText);
         }
     }
-
-    const patientId = /*[[${patient.getId()}]]*/ '1';
     fetchTemperatureChart(patientId);
     fetchSaturationChart(patientId);
     fetchRespirationRateChart();
