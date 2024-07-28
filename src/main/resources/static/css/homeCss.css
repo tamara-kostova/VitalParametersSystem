@@ -7,10 +7,6 @@
     /*-webkit-text-fill-color: transparent;*/
     /*background-clip: text;*/
     /*background-image: linear-gradient(45deg, #b9b926, #b4b43e, #bcec57, rgb(135, 210, 44), lightgoldenrodyellow);*/
-
-
-
-
 }
 #welcomeDivTittle{
     display: flex;
@@ -19,7 +15,7 @@
     margin-top: 4.5rem;
 }
 body{
-    background-image: linear-gradient(to right, #0f768a, #18779b, #399edc, rgb(128, 177, 234));
+    background-image: linear-gradient(to right, #2d8cc8, #399edc, #45a6e0, #51aee4);
 }
 #welcomeDivMain{
     margin-top: 3rem;

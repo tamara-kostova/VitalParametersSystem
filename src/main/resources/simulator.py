@@ -222,14 +222,14 @@ def get_age_based_value(age, adult_min, adult_max, non_adult_min, non_adult_max)
 # Functions for updating values based on previous values
 def update_temperature(previous_temp):
     # Use the previous temperature to slightly alter the new one
-    delta = random.uniform(-0.1, 0.1)  # Small change to simulate real temperature fluctuation
+    delta = random.uniform(-0.05, 0.05)  # Small change to simulate real temperature fluctuation
     new_temp = round(previous_temp + delta, 1)
     return new_temp
 
 
 def update_pulse(previous_pulse, age):
     # Pulse change is small unless there is a significant event
-    delta = random.randint(-1, 1)
+    delta = random.randint(-0.5, 0.5)
     new_pulse = previous_pulse + delta
     # Keep pulse within reasonable boundaries based on age
     if age >= 18:
