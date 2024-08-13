@@ -42,15 +42,15 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Live Monitoring</h4>
-<!--                    <div id="">-->
-<!--                        <img id="ecg-chart" src="" alt="Ecg Chart">-->
-<!--                    </div>-->
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Status</h4>
+                    <div class="chart-container">
+                        <canvas id="healthStatusChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row mt-4">
+    <div class="row mt-3">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -95,43 +95,45 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Status</h4>
-                    <div class="chart-container">
-                        <canvas id="healthStatusChart"></canvas>
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>
+                    <div id="sys-chart">
+                        <img id="systolic-chart" src="" alt="BP Chart" class="img-fluid">
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row mt-4">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">ECG Chart</h4>
                     <div id="">
-                        <img id="ecg-chart" src="" alt="Ecg Chart">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>
-                    <div id="sys-chart">
-                        <img id="systolic-chart" src="" alt="BP Chart">
+                        <img id="ecg-chart" src="" alt="Ecg Chart" class="img-fluid">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+<!--    <div class="row mt-4">-->
+<!--        <div class="col-md-12">-->
+<!--            <div class="card">-->
+<!--                <div class="card-body">-->
+<!--                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>-->
+<!--                    <div id="sys-chart">-->
+<!--                        <img id="systolic-chart" src="" alt="BP Chart" class="img-fluid">-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Temperature Chart</h4>
                     <div id="chart">
-                        <img id="temperature-chart" src="" alt="Temperature Chart">
+                        <img id="temperature-chart" src="" alt="Temperature Chart" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -141,7 +143,7 @@
                 <div class="card-body">
                     <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Saturation Chart</h4>
                     <div id="sat-chart">
-                        <img id="saturation-chart" src="" alt="Saturation Chart">
+                        <img id="saturation-chart" src="" alt="Saturation Chart" class="img-fluid">
                     </div>
                 </div>
             </div>
