@@ -312,7 +312,8 @@
             stompClient.subscribe('/topic/vitals', function(message) {
                 console.log('Received message: ' + message.body);
                 var vitalRecord = JSON.parse(message.body);
-                updateVitalRecord(vitalRecord);
+                if (vitalRecord.patientId == patientId)
+                    updateVitalRecord(vitalRecord);
             });
         }, function(error){
             console.error("Error during Stomp connection", error)

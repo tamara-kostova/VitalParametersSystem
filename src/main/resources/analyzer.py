@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
 from io import BytesIO
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 app = Flask(__name__)

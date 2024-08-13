@@ -1,16 +1,103 @@
 import random
 import time
 from datetime import datetime, timezone
-import neurokit2 as nk
+import numpy as np
 import psycopg2
-import matplotlib.pyplot as plt
-import websocket
-import json
 import requests
+import threading
 
-previous_values = {}
+class Patient:
+    def __init__(self, patient_id, age):
+        self.patient_id = patient_id
+        self.age = age
+        self.initialize_vitals()
 
-def write_to_timescaledb(patient_id, vitals):
+    def initialize_vitals(self):
+        self.temperature = self.initialize_temperature()
+        self.pulse = self.initialize_pulse()
+        self.respiration_rate = self.initialize_respiration_rate()
+        self.blood_pressure = self.initialize_blood_pressure()
+        self.saturation = self.initialize_saturation()
+
+    def initialize_temperature(self):
+        return random.uniform(36.1, 37.5)
+
+    def initialize_pulse(self):
+        if self.age >= 18:
+            return random.randint(60, 100)
+        elif 12 <= self.age < 18:
+            return random.randint(60, 110)
+        elif 6 <= self.age < 12:
+            return random.randint(70, 120)
+        elif 1 <= self.age < 6:
+            return random.randint(80, 130)
+        else:
+            return random.randint(100, 160)
+
+    def initialize_respiration_rate(self):
+        if self.age >= 18:
+            return random.randint(12, 20)
+        elif 6 <= self.age < 18:
+            return random.randint(18, 30)
+        else:
+            return random.randint(20, 40)
+
+    def initialize_blood_pressure(self):
+        if self.age >= 18:
+            systolic = random.randint(90, 120)
+            diastolic = random.randint(60, 80)
+        elif 12 <= self.age < 18:
+            systolic = random.randint(90, 120)
+            diastolic = random.randint(50, 80)
+        else:
+            systolic = random.randint(80, 110)
+            diastolic = random.randint(50, 70)
+        return systolic, diastolic
+
+    def initialize_saturation(self):
+        return random.randint(95, 100)
+
+    def update_vitals(self):
+        self.temperature = self.update_temperature()
+        self.pulse = self.update_pulse()
+        self.respiration_rate = self.update_respiration_rate()
+        self.blood_pressure = self.update_blood_pressure()
+        self.saturation = self.update_saturation()
+
+    def update_temperature(self):
+        change = random.gauss(0, 0.1)
+        new_temp = self.temperature + change
+        return max(35.0, min(new_temp, 41.0))
+
+    def update_pulse(self):
+        change = random.gauss(0, 2)
+        new_pulse = self.pulse + change
+        return max(40, min(new_pulse, 200))
+
+    def update_respiration_rate(self):
+        change = random.gauss(0, 1)
+        new_rate = self.respiration_rate + change
+        return max(8, min(new_rate, 60))
+
+    def update_blood_pressure(self):
+        systolic_change = random.gauss(0, 2)
+        diastolic_change = random.gauss(0, 1)
+        new_systolic = self.blood_pressure[0] + systolic_change
+        new_diastolic = self.blood_pressure[1] + diastolic_change
+        return (max(80, min(new_systolic, 200)), max(40, min(new_diastolic, 120)))
+
+    def update_saturation(self):
+        change = random.gauss(0, 0.5)
+        new_saturation = self.saturation + change
+        return max(80, min(new_saturation, 100))
+
+    def generate_ecg(self):
+        # Simplified ECG generation
+        time = np.linspace(0, 8, 1000)
+        ecg = np.sin(2 * np.pi * self.pulse / 60 * time) + 0.1 * np.random.randn(1000)
+        return ','.join(map(str, ecg))
+
+def write_to_timescaledb(patient):
     try:
         connection = psycopg2.connect(
             user="postgres",
@@ -26,24 +113,20 @@ def write_to_timescaledb(patient_id, vitals):
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         record_to_insert = (
-            patient_id,
-            vitals['fields']['temperature'],
-            vitals['fields']['pulse'],
-            vitals['fields']['respiration_rate'],
-            vitals['fields']['systolic'],
-            vitals['fields']['diastolic'],
-            vitals['fields']['ecg_string'][:200],
-            vitals['time'].strftime("%Y-%m-%d %H:%M:%S"),
-            vitals['fields']['saturation']
+            patient.patient_id,
+            round(patient.temperature, 1),
+            round(patient.pulse),
+            round(patient.respiration_rate),
+            round(patient.blood_pressure[0]),
+            round(patient.blood_pressure[1]),
+            patient.generate_ecg(),
+            datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            round(patient.saturation, 1)
         )
         cursor.execute(insert_query, record_to_insert)
         connection.commit()
-        count = cursor.rowcount
-        print(f"Record {record_to_insert} inserted successfully into vitals table")
-        try:
-            send_websocket_message(record_to_insert)
-        except Exception as e:
-            print(f"Error during WebSocket communication: {e}")
+        print(f"Record inserted successfully for patient {patient.patient_id}")
+        send_websocket_message(record_to_insert)
     except (Exception, psycopg2.Error) as error:
         print("Failed to insert record into vitals table", error)
     finally:
@@ -87,225 +170,59 @@ def get_patients():
         cursor.execute(query)
         patients = cursor.fetchall()
 
-        return patients
+        return {patient[0]: {"age": patient[1], "active": patient[2]} for patient in patients}
     except (Exception, psycopg2.Error) as error:
         print("Failed to fetch patients", error)
+        return {}
     finally:
         if connection:
             cursor.close()
             connection.close()
 
-def simulate_vitals():
-    while True:
-        patients = get_patients()
-        for patient in patients:
-            patient_id, age, active = patient
-            if active:
-                print(f'patient id: {patient_id}, active {active}, age: {age}')
-                vitals = generate_vitals(age)
-                print(f'vitals: {vitals}')
-                write_to_timescaledb(patient_id, vitals)
+def simulate_patient(patient, stop_event):
+    while not stop_event.is_set():
+        print(f'Simulate patient for: {patient.patient_id}')
+        patient.update_vitals()
+        write_to_timescaledb(patient)
         time.sleep(10)
 
-def initialize_values(age):
-    # Initialize values
-    global previous_values
-    previous_values = {
-        "temperature": initialize_temperature(),
-        "pulse": initialize_pulse(age),
-        "respiration_rate": initialize_respiration_rate(age),
-        "blood_pressure": initialize_blood_pressure(),
-        "ecg": initialize_ecg(),
-        "saturation": initialize_saturation(age)
-    }
+def simulate_vitals():
+    patients = {}
+    patient_threads = {}
+    stop_events = {}
 
+    while True:
+        db_patients = get_patients()
+        # Remove inactive patients
+        for patient_id in list(patients.keys()):
+            if patient_id not in db_patients or not db_patients[patient_id]["active"]:
+                print(f"Stopping simulation for patient {patient_id}")
+                stop_events[patient_id].set()
+                patient_threads[patient_id].join()
+                del patients[patient_id]
+                del patient_threads[patient_id]
+                del stop_events[patient_id]
 
-# Functions for initializing values when first instancing a patient
-def initialize_temperature():
-    # Normal human body temperature in Celsius
-    if random.random() < 0.8:
-        body_temperature = round(random.uniform(36.1, 37.5), 1)
-    else:
-        body_temperature = round(random.uniform(35.1, 40.0), 1)
-    return body_temperature
+        # Add or update active patients
+        for patient_id, patient_info in db_patients.items():
+            if patient_info["active"]:
+                if patient_id not in patients:
+                    print(f"Starting simulation for patient {patient_id}")
+                    patients[patient_id] = Patient(patient_id, patient_info["age"])
+                    stop_events[patient_id] = threading.Event()
+                    patient_threads[patient_id] = threading.Thread(
+                        target=simulate_patient,
+                        args=(patients[patient_id], stop_events[patient_id])
+                    )
+                    patient_threads[patient_id].start()
+                else:
+                    # Update age if it has changed
+                    if patients[patient_id].age != patient_info["age"]:
+                        patients[patient_id].age = patient_info["age"]
+                        print(f"Updated age for patient {patient_id}")
 
-
-def initialize_pulse(age):
-    # Normal resting pulse for adults ranges from 60 to 100 beats per minute
-    if random.random() < 0.8:
-        if age >= 18:
-            pulse_rate = random.randint(60, 100)
-        elif 6 <= age < 17:
-            pulse_rate = random.randint(70, 100)
-        elif 2 <= age < 6:
-            pulse_rate = random.randint(80, 130)
-        else:
-            pulse_rate = random.randint(80, 160)
-    else:
-        if age >= 18:
-            pulse_rate = random.randint(30, 200)
-        elif 6 <= age < 17:
-            pulse_rate = random.randint(40, 170)
-        elif 2 <= age < 6:
-            pulse_rate = random.randint(50, 220)
-        else:
-            pulse_rate = random.randint(50, 240)
-    return pulse_rate
-
-
-def initialize_respiration_rate(age):
-    # Normal respiration rate for adults ranges from 12 to 16 breaths per minute
-    if random.random() < 0.8:
-        if age >= 18:
-            respiration_rate = random.randint(12, 20)
-        elif 6 <= age < 17:
-            respiration_rate = random.randint(18, 30)
-        else:
-            respiration_rate = random.randint(20, 40)
-    else:
-        if age >= 18:
-            respiration_rate = random.randint(6, 40)
-        elif 6 <= age < 17:
-            respiration_rate = random.randint(8, 50)
-        else:
-            respiration_rate = random.randint(10, 60)
-    return respiration_rate
-
-
-def initialize_blood_pressure():
-    # Normal systolic/diastolic pressure in mmHg
-    if random.random() < 0.8:
-        systolic = random.randint(90, 120)
-        diastolic = random.randint(60, 80)
-    else:
-        systolic = random.randint(60, 220)
-        diastolic = random.randint(40, 120)
-    return systolic, diastolic
-
-
-def initialize_ecg():
-    # ECG value generator which takes into the current heart rate
-    ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=80)
-    return ecg
-
-def initialize_saturation(age):
-    # Normal resting saturation levels for healthy individuals
-    if random.random() < 0.8:
-        if age >= 18:
-            saturation = random.randint(95, 100)
-        elif 6 <= age < 17:
-            saturation = random.randint(95, 100)
-        elif 2 <= age < 6:
-            saturation = random.randint(95, 100)
-        else:
-            saturation = random.randint(95, 100)
-    else:
-        if age >= 18:
-            saturation = random.randint(80, 100)
-        elif 6 <= age < 17:
-            saturation = random.randint(80, 100)
-        elif 2 <= age < 6:
-            saturation = random.randint(80, 100)
-        else:
-            saturation = random.randint(80, 100)
-    return saturation
-
-
-
-def get_age_based_value(age, adult_min, adult_max, non_adult_min, non_adult_max):
-    if age >= 18:
-        return random.randint(adult_min, adult_max)
-    else:
-        return random.randint(non_adult_min, non_adult_max)
-
-
-# Functions for updating values based on previous values
-def update_temperature(previous_temp):
-    # Use the previous temperature to slightly alter the new one
-    delta = random.uniform(-0.05, 0.05)  # Small change to simulate real temperature fluctuation
-    new_temp = round(previous_temp + delta, 1)
-    return new_temp
-
-
-def update_pulse(previous_pulse, age):
-    # Pulse change is small unless there is a significant event
-    delta = random.randint(-0.5, 0.5)
-    new_pulse = previous_pulse + delta
-    # Keep pulse within reasonable boundaries based on age
-    if age >= 18:
-        new_pulse = max(60, min(new_pulse, 100))
-    elif 6 <= age < 17:
-        new_pulse = max(70, min(new_pulse, 100))
-    elif 2 <= age < 6:
-        new_pulse = max(80, min(new_pulse, 130))
-    else:
-        new_pulse = max(80, min(new_pulse, 160))
-    return new_pulse
-
-
-def update_respiration_rate(previous_rate, age):
-    delta = random.randint(-1, 1)
-    new_rate = previous_rate + delta
-    # Adjust rates for age groups
-    if age >= 18:
-        new_rate = max(12, min(new_rate, 20))
-    elif 6 <= age < 17:
-        new_rate = max(18, min(new_rate, 30))
-    else:
-        new_rate = max(20, min(new_rate, 40))
-    return new_rate
-
-
-def update_blood_pressure(previous_bp):
-    delta_systolic = random.randint(-1, 1)
-    delta_diastolic = random.randint(-1, 1)
-    new_systolic = max(90, min(previous_bp[0] + delta_systolic, 120))
-    new_diastolic = max(60, min(previous_bp[1] + delta_diastolic, 80))
-    return new_systolic, new_diastolic
-
-
-def update_ecg(pulse):
-    ecg = nk.ecg_simulate(duration=8, sampling_rate=1000, heart_rate=pulse)
-    # Save ECG plot
-    plot_filename = f'ecg_plot_{datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")}.png'
-    nk.signal_plot(ecg, labels=["ecg"])
-    # plt.savefig(plot_filename)
-    plt.close()
-    return ecg
-
-def update_saturation(previous_saturation):
-    delta_saturation = random.randint(-1, 1)
-    new_saturation = max(90, min(previous_saturation + delta_saturation, 100))
-    return new_saturation
-
-def generate_vitals(age):
-    global previous_values
-    if not previous_values:
-        initialize_values(age)
-    else:
-        previous_values["temperature"] = update_temperature(previous_values["temperature"])
-        previous_values["pulse"] = update_pulse(previous_values["pulse"], age)
-        previous_values["respiration_rate"] = update_respiration_rate(previous_values["respiration_rate"], age)
-        previous_values["blood_pressure"] = update_blood_pressure(previous_values["blood_pressure"])
-        previous_values["saturation"] = update_saturation(previous_values["saturation"])
-        previous_values["ecg"] = update_ecg(previous_values["pulse"])
-
-
-    ecg_string = ','.join(map(str, previous_values["ecg"]))
-
-    return {
-        "measurement": "patient1",
-        "fields": {
-            'temperature': previous_values["temperature"],
-            'pulse': previous_values["pulse"],
-            'respiration_rate': previous_values["respiration_rate"],
-            'systolic': previous_values["blood_pressure"][0],
-            'diastolic': previous_values["blood_pressure"][1],
-            'saturation': previous_values["saturation"],
-            'ecg_string': ecg_string
-        },
-        'time': datetime.now(timezone.utc)
-    }
+        # Sleep for a while before checking for patient updates again
+        time.sleep(60)  # Check for patient updates every minute
 
 if __name__ == "__main__":
     simulate_vitals()
