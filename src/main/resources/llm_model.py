@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify
-import openai
+from flask_cors import CORS
 from datetime import datetime, timedelta
-import psycopg2
 from llm_util import fetch_patient_data, generate_health_score
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/health-score', methods=['POST'])
 def get_health_score():
@@ -26,4 +25,4 @@ def get_health_score():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

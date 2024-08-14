@@ -15,6 +15,7 @@
 <div class="header text-center">
     <h1>Patient Details</h1>
     <a href="/patients" class="btn btn-back mt-4" style="margin-top: 2rem;margin-bottom: 2rem;margin-left: 1rem">Back to Patients</a>
+    <button id="generateHealthScore" class="btn btn-primary mt-4" style="margin-top: 2rem;margin-bottom: 2rem;margin-left: 1rem">Generate Health Score</button>
 </div>
 
 <div class="container">
@@ -95,10 +96,8 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>
-                    <div id="sys-chart">
-                        <img id="systolic-chart" src="" alt="BP Chart" class="img-fluid">
-                    </div>
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Health Score Report</h4>
+                    <div id="healthScoreReport"></div>
                 </div>
             </div>
         </div>
@@ -115,19 +114,17 @@
             </div>
         </div>
     </div>
-<!--    <div class="row mt-4">-->
-<!--        <div class="col-md-12">-->
-<!--            <div class="card">-->
-<!--                <div class="card-body">-->
-<!--                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>-->
-<!--                    <div id="sys-chart">-->
-<!--                        <img id="systolic-chart" src="" alt="BP Chart" class="img-fluid">-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
     <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">BP Chart</h4>
+                    <div id="sys-chart">
+                        <img id="systolic-chart" src="" alt="BP Chart" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -138,6 +135,8 @@
                 </div>
             </div>
         </div>
+        </div>
+    <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -148,34 +147,21 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3" style="color: #3f0256;font-weight: bold">Respiration Rate Chart</h4>
+                    <div id="respiration-chart">
+                        <img id="respiration-rate-chart" src="" alt="Respiration Rate Chart" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script th:inline="javascript">
     const patientId = /*[[${patient.getId()}]]*/ '1';
-
-    // ECG Chart
-    // const ecgCtx = document.getElementById('ecg-chart').getContext('2d');
-    // const ecgChart = new Chart(ecgCtx, {
-    //     type: 'line',
-    //     data: {
-    //         labels: Array(100).fill(''),
-    //         datasets: [{
-    //             data: Array(100).fill(0),
-    //             borderColor: 'rgb(75, 192, 192)',
-    //             tension: 0.1
-    //         }]
-    //     },
-    //     options: {
-    //         responsive: true,
-    //         maintainAspectRatio: false,
-    //         scales: {
-    //             x: { display: false },
-    //             y: { display: false }
-    //         },
-    //         plugins: { legend: { display: false } }
-    //     }
-    // });
 
     // Health Status Chart
     const healthStatusCtx = document.getElementById('healthStatusChart').getContext('2d');
@@ -252,8 +238,6 @@
             },
             body: JSON.stringify(saturationData)
         });
-        const result = await response.json();
-        console.log(result);
         document.getElementById('saturation-chart').src = 'data:image/png;base64,' + result.image;
     }
     async function fetchRespirationRateChart(){
@@ -300,7 +284,7 @@
     fetchTemperatureChart(patientId);
     fetchSaturationChart(patientId);
     fetchRespirationRateChart();
-    fetchPulseChart();
+    // fetchPulseChart();
     fetchECGChart(patientId);
     fetchSystolicChart();
     document.addEventListener("DOMContentLoaded", function() {
@@ -309,7 +293,7 @@
         var stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function(frame) {
-            stompClient.subscribe('/topic/vitals', function(message) {
+            stompClient.subscribe('/topic/vitals/'+patientId, function(message) {
                 console.log('Received message: ' + message.body);
                 var vitalRecord = JSON.parse(message.body);
                 if (vitalRecord.patientId == patientId)
@@ -325,11 +309,43 @@
             document.getElementById("respiration").innerText = vitalRecord.respirationRate;
             document.getElementById("systolic").innerText = vitalRecord.systolic;
             document.getElementById("diastolic").innerText = vitalRecord.diastolic;
-            // document.getElementById("ecgString").innerText = vitalRecord.ecgString;
-            // document.getElementById("time").innerText = vitalRecord.time;
             document.getElementById("saturation").innerText = vitalRecord.saturation;
         }
+        const generateButton = document.getElementById("generateHealthScore");
+        if (generateButton) {
+            generateButton.addEventListener("click", generateHealthScore);
+        } else {
+            console.error("Generate Health Score button not found");
+        }
     });
+    async function generateHealthScore() {
+        try {
+            const response = await fetch('http://localhost:5001/health-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                mode: 'cors',
+                body: JSON.stringify({ patient_id: patientId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            displayHealthScore(data.health_analysis);
+        } catch (error) {
+            console.error('Error generating health score:', error);
+            displayHealthScore(`Error generating health score: ${error.message}. Please check the console for more details.`);
+        }
+    }
+
+    function displayHealthScore(healthAnalysis) {
+        const healthScoreReport = document.getElementById('healthScoreReport');
+        healthScoreReport.innerHTML = `<p>${healthAnalysis}</p>`;
+    }
 </script>
 </body>
 </html>
